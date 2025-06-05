@@ -9,7 +9,7 @@ Note that this is a **Public Beta Test**
 ## ✨ Why PaLLi?
 PaLLi is *not* a basic command bot. It behaves more like a thoughtful observer than a chatbot on auto-pilot. Its goal is to feel like a smart participant—not just a message responder.
 
-> *Most bots don’t know when to shut up. PaLLi does.*
+*Most bots don’t know when to shut up. PaLLi does.*
 
 ---
 
@@ -25,9 +25,9 @@ PaLLi is *not* a basic command bot. It behaves more like a thoughtful observer t
 ## 🚧 Upcoming Features (Rolling Out Weekly During Beta)
 
 We are rolling out additional features **in a staggered schedule**, roughly one per week:
-- 🔊 **Voice: STT/TTS in chat and channels**  
-- 🔎 **Message Embedding & Vector Memory & RAG (file-aware retrieval system)** 
-- 🧠 **Proactive Task Awareness & Suggestions**  
+- 🔎 **RAG (Both message history and file-aware context retrieval)** 
+- 🔊 **Voice: STT/TTS in chat and channels**
+- 🧠 **Proactive Task Awareness & Suggestions**
 - 🤖 **Tool Invocation via Intent Recognition**
 
 ---
