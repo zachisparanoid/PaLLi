@@ -7,7 +7,7 @@ PaLLi is built to be **selectively responsive, context-aware**, and conversation
 
 ## 🚀 Join the Beta
 You can try PaLLi right now by joining the Discord server:
-👉 **[Join the Beta on Discord]([https://discord.gg/pFhpgHsK])** 👈
+👉 **[Join the Beta on Discord](https://discord.gg/pFhpgHsK)** 👈
 Come poke at it, break things, and tell us what exploded.
 
 ---
