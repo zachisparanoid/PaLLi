@@ -25,7 +25,6 @@ If it seems like it’s ignoring you, don’t take it personally — it’s just
 
 ## 💡 Available Commands
 You can manage PaLLi’s behavior with a few simple slash commands:
-
 - `/status` – See current settings in this channel  
 - `/toggle_analysis` – Enable or disable message analysis  
 - `/toggle_decisions` – Enable or disable smart response filtering  
@@ -41,8 +40,6 @@ You can manage PaLLi’s behavior with a few simple slash commands:
 ## 📣 Feedback & Bug Reports
 This is a **public beta**, and things may not always work as expected. Actually, they probably won’t. That’s part of the fun.
 If you encounter bugs, odd behavior, or want to suggest features, drop your thoughts in the Discord server. Please keep feedback respectful — constructive chaos is welcome, unconstructive chaos... not so much.
-
-If needed, you can optionally reach me at **zach@securi.sh**. If it’s really broken, please include logs. If it just made a weird joke — that’s on me.
 
 ---
 
