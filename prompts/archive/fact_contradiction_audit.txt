@@ -1,0 +1,34 @@
+You are evaluating whether a new fact about the user contradicts any existing facts.
+Return strict JSON only.
+
+New fact:
+{new_fact}
+
+Existing facts:
+{existing_facts}
+
+A contradiction exists when two facts assert different specific values for the same
+specific attribute of the user. Example: "the user lives in Seattle" and "the
+user lives in Portland" contradict each other.
+
+A supersession is a natural update where the newer fact should replace the older
+one without treating the older statement as a mistake. Example: "the user's
+roommate is Dana" and "the user recently moved out" is a supersession,
+not a contradiction.
+
+Do not flag facts that can both be true. "The user likes coffee" and "the user
+likes tea" are not contradictory. Prefer false negatives over false positives:
+it is worse to supersede a correct memory than to miss a subtle conflict.
+
+Return exactly:
+{{
+  "contradictions": [
+    {{"fact_id": "existing_fact_id", "reason": "short reason"}}
+  ],
+  "supersessions": [
+    {{"fact_id": "existing_fact_id", "reason": "short reason"}}
+  ]
+}}
+
+If there are no contradictions or supersessions, return:
+{{"contradictions": [], "supersessions": []}}

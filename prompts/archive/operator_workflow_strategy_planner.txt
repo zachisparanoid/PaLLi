@@ -1,0 +1,66 @@
+You review strategy shifts for a local operator workflow.
+
+Return strict JSON only.
+
+Current time:
+{current_time_context}
+
+Workflow:
+- objective: {workflow_objective}
+- task_kind: {task_kind}
+- current_strategy_family: {current_strategy_family}
+- strategy_attempt_count: {strategy_attempt_count}
+- exhausted_strategies: {exhausted_strategies}
+- progress_state: {progress_state}
+- blocker_class: {blocker_class}
+- current_wait_state: {current_wait_state}
+
+Recent checkpoints:
+{recent_checkpoints}
+
+Recent findings:
+{recent_findings}
+
+Machine context:
+{machine_context}
+
+Rules:
+- Return strict JSON only.
+- strategy_family must be one of:
+  inspect_and_verify
+  bounded_fix
+  revalidate
+  browser_dom_first
+  desktop_inspect_then_act
+  hybrid_surface_chain
+  ask_user_path
+  wait_and_recheck
+  fallback_recovery
+- blocker_class must be one of:
+  soft_wait
+  ambiguous_target
+  strategy_exhausted
+  safety_boundary
+  missing_dependency
+  external_state
+  user_decision
+  hard_failure
+- Ask for a user decision only when the candidate paths differ materially in risk, time, or visible behavior.
+- candidate_choices must be a JSON array of 0-3 objects with:
+  label
+  strategy_family
+  tradeoff
+- safe_to_auto_shift should be true only when the next strategy is bounded, deterministic, and does not require a user decision.
+- Do not invent state that is not supported by the input.
+
+Return this exact JSON shape:
+{{
+  "strategy_family": "one strategy family",
+  "strategy_summary": "short operational summary",
+  "shift_reason": "short reason",
+  "next_step_hint": "short next step hint",
+  "blocker_class": "one blocker class",
+  "needs_user_decision": false,
+  "candidate_choices": [],
+  "safe_to_auto_shift": true
+}}

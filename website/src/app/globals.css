@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --bg: #000000;
+  --fg: #ffffff;
+  --font-geist-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --muted: rgba(255, 255, 255, 0.6);
+  --card: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --accent: #38bdf8;
+  --ring: rgba(56, 189, 248, 0.35);
+  --accent-1: #38bdf8;
+  --accent-2: #0ea5e9;
+  --accent-3: #2563eb;
+  --accent-4: #1d4ed8;
+  --accent-gradient: linear-gradient(
+    120deg,
+    var(--accent-1) 0%,
+    var(--accent-2) 35%,
+    var(--accent-3) 70%,
+    var(--accent-4) 100%
+  );
+  --accent-gradient-vertical: linear-gradient(
+    180deg,
+    var(--accent-2) 0%,
+    var(--accent-1) 55%,
+    var(--accent-3) 100%
+  );
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  
+  --color-brand-50: #f0f9ff;
+  --color-brand-100: #e0f2fe;
+  --color-brand-200: #bae6fd;
+  --color-brand-300: #7dd3fc;
+  --color-brand-400: #38bdf8;
+  --color-brand-500: #0ea5e9;
+  --color-brand-600: #0284c7;
+  --color-brand-700: #0369a1;
+  --color-brand-800: #075985;
+  --color-brand-900: #0c4a6e;
+
+  --shadow-glow: 0 0 40px -10px rgba(56, 189, 248, 0.18);
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  /* Black base with bright blue ambience. */
+  background:
+    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 85% 15%, rgba(14, 165, 233, 0.08) 0%, transparent 55%),
+    var(--bg);
+}
+
+/* Analog Noise Texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    600px circle at var(--mouse-x) var(--mouse-y),
+    rgba(56, 189, 248, 0.06),
+    transparent 40%
+  );
+  z-index: 1;
+}
+
+.accent-divider,
+.accent-divider-top,
+.accent-divider-y {
+  position: relative;
+}
+
+.accent-divider::after,
+.accent-divider-y::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  pointer-events: none;
+  opacity: 0.5;
+  background: var(--accent-gradient);
+  background-size: 200% 200%;
+  animation: accent-shift 18s ease-in-out infinite;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.22);
+}
+
+.accent-divider-top::before,
+.accent-divider-y::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 1px;
+  pointer-events: none;
+  opacity: 0.5;
+  background: var(--accent-gradient);
+  background-size: 200% 200%;
+  animation: accent-shift 18s ease-in-out infinite;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.22);
+}
+
+.accent-rail {
+  background: var(--accent-gradient-vertical);
+  background-size: 100% 200%;
+  animation: accent-shift 14s ease-in-out infinite;
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accent-rail,
+  .accent-divider::after,
+  .accent-divider-top::before,
+  .accent-divider-y::before,
+  .accent-divider-y::after {
+    animation: none;
+  }
+}
+
+@keyframes accent-shift {
+  0% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+  100% {
+    background-position: 50% 0%;
+  }
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.22);
+  color: #fff;
+}

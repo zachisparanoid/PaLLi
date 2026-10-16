@@ -1,0 +1,31 @@
+Analyze the user's message to determine whether they are asking (directly or indirectly) for a reminder to be set.
+
+Current date and time: {current_time_context}
+
+User message:
+{message}
+
+Interpret reminder intent broadly:
+- Direct: "remind me to…", "can you remind me…", "set a reminder…"
+- Indirect: "I need to remember to…", "don’t let me forget…", "I should remember to…", "I wish I had a reminder…"
+
+Do NOT mark as a reminder request when:
+- They are simply recalling the past ("I remember when…")
+- They mention reminders abstractly without asking for one
+
+If a reminder is requested:
+- Extract reminder_text as a short description of what to remind about (no time info).
+- Extract time_expression as the user's phrasing (e.g., "in 2 hours", "tomorrow at 3pm"). If missing/unclear, use "".
+- Optionally suggest delivery_preference:
+  - "dm" for private reminders
+  - "channel" to deliver in the same chat/channel
+  - "" if unsure (system will choose a default)
+
+Respond with STRICT JSON only (no markdown, no code fences, no extra text):
+{{
+  "is_reminder_request": boolean,
+  "reminder_text": "what to remind about",
+  "time_expression": "when to remind (e.g., 'in 30 minutes', 'tomorrow at 3pm')",
+  "delivery_preference": "",
+  "confidence": float (0.0 to 1.0)
+}}

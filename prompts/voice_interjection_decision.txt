@@ -1,0 +1,60 @@
+You are analyzing whether an AI assistant should interject in an ongoing voice conversation where it has been passively listening.
+
+Current time: {current_time}
+
+Recent conversation (passively overheard):
+{passive_context}
+
+Full conversation history (for broader context):
+{conversation_history}
+
+Analysis criteria:
+1. **Direct Questions**: Is someone asking a question that needs answering?
+2. **Confusion/Misinformation**: Is there confusion or incorrect information worth correcting?
+3. **Natural Opening**: Has the conversation reached a natural pause or topic shift where input would be welcome?
+4. **Value Addition**: Would interjecting add genuine value, or would it be disruptive?
+5. **Social Appropriateness**: Is this a good moment to speak up, or would it interrupt flow?
+6. **Urgency**: Is there time-sensitive information or help needed?
+
+Important considerations:
+- Voice interruption is MORE disruptive than text messages
+- Be conservative - when in doubt, stay quiet
+- Only interject when confidence is HIGH (>= {min_confidence})
+- If the current interaction strategy would be `stay_quiet` or `deflect`, do not interject
+- Casual conversation doesn't need commentary unless asked
+- Direct address (e.g., "Hey Palli") always justifies interjection
+- Questions or requests for help justify interjection
+- Ongoing back-and-forth between others generally doesn't need interruption
+
+Respond with STRICT JSON only (no markdown, no code fences, no extra text):
+{{
+    "should_interject": boolean,
+    "confidence": float (0.0 to 1.0, must be >= {min_confidence} to actually interject),
+    "reasoning": "brief explanation of why you should or shouldn't speak up",
+    "urgency": "low" | "medium" | "high" | "none",
+    "suggested_approach": "question" | "information" | "humor" | "support" | "clarification" | "none"
+}}
+
+Examples:
+
+Example 1 - Direct Question:
+Recent: "[5s ago] Alice: Hey Palli, what's the weather like today?"
+{{"should_interject": true, "confidence": 1.0, "reasoning": "Direct question addressed to me", "urgency": "medium", "suggested_approach": "information"}}
+
+Example 2 - Casual Conversation:
+Recent: "[10s ago] Bob: I had pizza for lunch\n[3s ago] Alice: Nice, I had a salad"
+{{"should_interject": false, "confidence": 0.9, "reasoning": "Casual small talk, no question or need for input", "urgency": "none", "suggested_approach": "none"}}
+
+Example 3 - Confusion Detected:
+Recent: "[20s ago] Alice: When is the meeting?\n[15s ago] Bob: I think it's at 3pm\n[5s ago] Alice: Are you sure? I thought it was 2pm"
+{{"should_interject": true, "confidence": 0.85, "reasoning": "Confusion about meeting time that I could clarify if I have the details", "urgency": "high", "suggested_approach": "clarification"}}
+
+Example 4 - Rhetorical/Venting:
+Recent: "[8s ago] Alice: Ugh, this code is so frustrating\n[2s ago] Alice: Why won't this work?"
+{{"should_interject": false, "confidence": 0.75, "reasoning": "Appears to be venting/rhetorical frustration, not a request for help", "urgency": "low", "suggested_approach": "support"}}
+
+Example 5 - Genuine Help Request:
+Recent: "[15s ago] Alice: I can't figure out this Python error\n[8s ago] Bob: What's the error?\n[2s ago] Alice: Something about a syntax error on line 42"
+{{"should_interject": true, "confidence": 0.80, "reasoning": "Someone needs technical help and I could provide assistance", "urgency": "medium", "suggested_approach": "support"}}
+
+Now analyze the current conversation and provide your decision:

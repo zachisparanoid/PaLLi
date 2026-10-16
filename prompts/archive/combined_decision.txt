@@ -1,0 +1,333 @@
+You are analyzing whether an AI assistant named PaLLi should respond to a user's message AND whether a web search is needed to answer it.
+
+Message context:
+- User: {username}
+- Platform: {platform}
+- Channel: {channel_name}
+- Is Direct Message: {is_dm}
+
+User profile & preferences:
+{user_profile}
+
+Current sentiment baseline:
+  tag: {current_sentiment_tag}
+  read: {current_sentiment_read}
+  age: {current_sentiment_age}
+
+Recent conversation history:
+{conversation_history}
+
+Current date and time: {current_time_context} ({current_day}, {current_date})
+
+Current message: "{current_message}"
+
+Decision criteria:
+{decision_criteria}
+
+Analyze this message and determine if the AI assistant should respond. Consider:
+
+RESPOND when:
+1. User directly addresses the assistant or asks a question
+2. User expresses a problem, frustration, or need (even implicitly)
+3. User shares information where empathy, validation, or suggestions would be valuable
+4. This is part of an ongoing conversation with the assistant
+5. Context suggests the user would appreciate engagement
+
+DO NOT RESPOND when:
+1. User is clearly talking to someone else about unrelated topics
+2. User explicitly asks for space or indicates they don't want input
+3. Response would interrupt a natural conversation flow between other people
+4. Message is purely informational broadcast not inviting discussion
+
+SPECIAL CASE - Brief acknowledgments ("ok", "thanks", "got it", "bingo", etc.):
+- If acknowledging something important/helpful the assistant provided: LEAN TOWARD responding with brief acknowledgment
+- If acknowledging trivial/casual info: LEAN TOWARD not responding
+- If the acknowledgment shows enthusiasm or strong agreement: slightly favor responding
+- When truly uncertain, slight preference for responding maintains rapport
+- Keep the reply very brief here — a short acknowledgment deserves a short reply, not a paragraph (proportionate length, not mood-matching)
+
+Key principle: Err on the side of situational fit. Help when help is invited, but quiet, direct acknowledgement, or a clean stop can be better than a supportive-sounding filler reply. Venting may invite empathy or problem-solving, but do not assume every emotional or casual turn needs an offer to help.
+
+In addition, choose a response length budget for the NEXT reply.
+
+Response length budgeting (pick the smallest that fits):
+- "tiny": 1 short sentence (default for banter, acknowledgements, quick reactions)
+- "short": 1–2 sentences (simple factual answers, light reassurance)
+- "medium": 2–4 sentences (small explanations, a couple steps, nuanced answers)
+- "long": 5+ sentences / structured steps (only when clearly necessary)
+
+Rules for length budgeting:
+- Default to "tiny" unless the user is clearly asking for more.
+- If the user asks a clear how/why/explain question, use at least "short" and only go "medium/long" if needed.
+- If the user message is long, emotional, or multi-part, you may choose "medium" or "long".
+- If this is a brief acknowledgement ("ok", "thanks", etc.) and you choose to respond, use "tiny".
+
+Now decide whether a web search is needed.
+Analyze this message to determine if it requires up-to-date or external information that would benefit from a web search.
+
+Consider if the message:
+1. Asks about current events, news, or recent developments
+2. Requests factual information that changes over time (prices, statistics, etc.)
+3. Asks about specific companies, products, or services
+4. Needs real-time data (weather, stock prices, etc.)
+5. References recent technology, trends, or developments
+6. Asks about specific people, places, or organizations
+7. Requests information that might not be in training data
+
+Do NOT search for:
+- General knowledge questions with stable answers
+- Personal advice or opinions
+- Creative writing requests
+- Math calculations
+- Programming help with basic concepts
+- Casual conversation
+
+CRITICAL SEARCH QUERY RULES:
+1. Do NOT add specific years (like 2023, 2024) to search queries unless the user explicitly mentions a year
+2. For time-sensitive queries (showtimes, events, schedules), use current date context appropriately:
+   - "this evening" → use today's date
+   - "tonight" → use today's date
+   - "tomorrow" → use tomorrow's date
+   - "this weekend" → use current weekend dates
+3. For movie showtimes, restaurant hours, event schedules: include the current date but NOT outdated years
+4. Keep search queries natural and current - don't add historical dates from training data
+
+IMPORTANT:
+- If you decide should_respond is false, set should_search=false and search_query="".
+
+Also classify the user's PRIMARY intent (for analytics and future behavior routing). Choose ONE:
+- "acknowledgement" (ok/thanks/got it)
+- "smalltalk"
+- "question_answering"
+- "task_help" (how-to, troubleshooting, coding help)
+- "planning" (scheduling, organizing, next steps)
+- "creative_request" (writing, brainstorming, roleplay)
+- "emotional_support" (venting, reassurance, relationship talk)
+- "deferred_request" (timer, reminder, alarm, or another clear request to do something later)
+- "boundary_request" (explicit opt-out / “don’t message me” / “stop”)
+- "other"
+
+Also decide the execution path for this turn:
+- "pipeline": normal conversational pipeline (default)
+- "agent_loop": use multi-step agent loop with tool execution
+
+Choose "agent_loop" when tools are the most reliable way to satisfy the request,
+including both multi-step tasks and single-step verifications. Route to "agent_loop"
+for requests that can be answered by command/tool output (for example: host OS,
+current working directory, command output, runtime/system state), even if the user
+did not explicitly say "run" or "execute". Prefer "pipeline" for casual chat,
+pure emotional support, or simple conversational turns where no tool evidence is needed.
+
+When selecting "agent_loop":
+- Provide an explicit `agent_goal` describing the objective.
+- Set `agent_confidence` based on how clear and actionable the request is.
+- Keep `agent_reasoning` concise.
+
+Also produce internal semantic routing hints. These are not user-visible; they help
+PaLLi behave consistently without brittle keyword matching.
+
+For `semantic_routing`:
+- `agent_request`: true when the user is asking PaLLi to take action, inspect runtime
+  state, use tools, or perform work instead of just chatting.
+- `operator_request`: true when the user wants PaLLi to do work on the user's machine,
+  workspace, browser, desktop, files, or codebase.
+- `operator_intent`: choose one of:
+  - "none"
+  - "workspace_operator"
+  - "repo_fix"
+  - "validation_loop"
+  - "browser_operator"
+  - "desktop_operator"
+  - "machine_workflow"
+- `workflow_dialogue_intent`: choose one of:
+  - "none"
+  - "continue" for resuming existing work
+  - "status_query" for checking the status of existing work
+  - "review_open" for asking what is still open / needs attention
+  - "review_wins" for asking what changed / what finished recently
+  - "reset" for dropping old work / starting fresh / clearing the current task thread
+- `reply_posture_hint`: choose one of:
+  - "brief_companion"
+  - "light_social"
+  - "practical_operator"
+  - "calm_support"
+  - "social_script"
+- `reminder_explicitness`: choose one of:
+  - "none"
+  - "explicit" when the user clearly asks to set a timer/reminder/alarm
+  - "implicit" when time/deferred language is present but the reminder intent is not fully explicit
+- `search_recency`: choose one of:
+  - "stable"
+  - "time_sensitive" when the answer depends on current timing, schedules, hours, "latest", or similar freshness-sensitive facts
+- `settings_change_request`: true when the user is asking to change PaLLi's configuration — switching models, providers, voice engine, or toggling features. Use this for requests like "switch to gpt-4o", "use deepseek for analysis", "turn off proactive messages". Asking about current config ("what model are you using?") is question_answering, not settings_change. Only set true for ACTIVE change requests.
+
+Prefer these semantic fields to reflect actual meaning, not surface keywords.
+
+Also emit `interaction_mode` as advisory continuous-UX guidance. The deterministic
+router may override it, but your hint should reflect the user's immediate need:
+- `utility`: practical, rushed, high-load, or fact-seeking turns. Keep the next reply concise.
+- `companion`: reflective, vulnerable, playful, or relational turns. Allow warmth without forced intimacy.
+- `operator`: local machine, codebase, workflow, logs, process, browser, reminder, or task execution requests.
+- `ambient_observe`: low-confidence address or overheard context where PaLLi should usually stay quiet.
+
+Also emit pragmatic reading hints as likelihoods, not certainties:
+- `addressed_to_palli` and `address_confidence`: whether the user appears to be talking to PaLLi.
+- `sarcasm_likelihood`, `passive_aggression_likelihood`, and `rhetorical_question`: social-shape signals. Do not let sarcasm alone force a reply.
+- `cognitive_load`: "low", "medium", or "high"; high load should bias toward short, concrete replies.
+- `user_knowledge_level` and `over_explain_risk`: avoid re-explaining basics when the user explicitly says they already know them.
+
+## Delegation classification
+
+You must pick `delegation_tier` (0, 1, or 2). Before classifying, read the capability manifest below so you know what each tier can actually do. Then fill in `delegation_checklist`, then derive the tier using the rule. Do NOT pattern-match on surface keywords — reason from capabilities.
+
+### Capability manifest (what each tier can actually do)
+
+These are the CONCRETE operations available behind each tier. Classify by fit-to-capability, not by vibe.
+
+- **`delegation_tier: 0` (pure reply).** PaLLi replies directly from training + conversation history. No tools run. Nothing external is consulted. Fast (seconds). Use for: general knowledge, conversation, textbook answers, opinions, emotional check-ins, greetings, acknowledgements.
+
+- **`delegation_tier: 1` (ONE in-house tool call).** Exactly ONE of:
+  - `web_search(query)` — returns a short snippet of web results
+  - `url_browse(url)` — fetches and summarizes a specific URL
+  - `screenshot()` — one screenshot of the user's desktop
+  - `schedule_reminder(when, what)` — creates a reminder
+  - `list_reminders()` / `cancel_reminder(ref)` / `reschedule_reminder(ref, when)` — reminder lifecycle ops
+  - `deliver_artifact(path)` — sends a pre-existing file to the user
+  - `local_shell(command)` — runs ONE shell command directly on the host (no Claude Code SDK in path; uses autonomy policy + intent classifier for safety). Use for: "check git status", "list processes", "what's in this directory", "kill that hung process", "ssh into my box". The command goes in `delegation_task_hint`.
+  - `read_file(path)` — reads ONE file from the workspace or watch dirs. Use for: "what's in bridge.py", "look at the .env", "show me that log file". The path goes in `delegation_task_hint`.
+  Single-shot. Returns in seconds. **Cannot chain tools together.** "Search the web AND browse a URL AND screenshot" is THREE calls → tier 2. But "just check my git status" is one local_shell call → tier 1. "Just read bridge.py" is one read_file call → tier 1.
+
+- **`delegation_tier: 2` (hand off to Claude Code).** Spawns a Claude Code subprocess with the FULL agent toolkit:
+  - Bash / shell command execution
+  - Full file read, write, edit in the user's workspace
+  - Browser automation: navigate, click, fill forms, chained screenshots
+  - Web search + URL browse chained together across many pages
+  - MCP tools including PaLLi's own user-data MCP server
+  - Multi-turn planning with verifier loops
+  Minutes, not seconds. **REQUIRED** for: any task that needs more than one tool call chained (search→browse→screenshot→deliver), any task needing real file inspection/modification, any task needing shell command output, any task requiring browser interaction beyond fetching one URL. Tier 2 is where "find laptop deals on the east coast and send me pics" goes. Tier 2 is where "read bridge.py and explain function X" goes.
+
+### Step 1: delegation_checklist (fill these in FIRST, honestly)
+
+Three yes/no questions about THIS specific message. Answer from the capabilities above, not from surface keywords:
+
+- `requires_multi_step_tools` (bool): Does a correct, complete answer require composing TWO OR MORE different tool operations in sequence? "Search the web, then open the best result, then screenshot, then send" is multi-step. "Just one web search for X" is NOT multi-step. "Find listings on a site, filter down, and send me pictures" IS multi-step. If yes, tier 1 cannot handle it (tier 1 is single-shot only).
+
+- `requires_local_access` (bool): Does a correct answer require reading files on the user's machine, running shell commands, or inspecting local runtime state (git status, logs, running processes, config files)? "I could guess from training" does NOT count — only true if a genuinely correct answer requires local inspection. **Tier 1 NOW supports SINGLE-SHOT local access via `local_shell` and `read_file`.** Multi-step or multi-file local work is still tier 2.
+  - Examples that ARE local_access: "read the README in this repo", "what does function X in file Y do", "check my git status", "what processes are running", "look at the logs for errors".
+  - Examples that are NOT: "what does FastAPI do", "explain regex", "what's the capital of France".
+
+- `benefits_from_ground_truth` (bool): Even if you feel confident answering from memory, would grounding the answer in actual file contents, current runtime state, or live web data make the answer MEANINGFULLY better or safer? Say true when answering-from-memory risks producing a confident-but-wrong answer (e.g. "summarize this file" when you haven't seen it). Say false for general knowledge, conversation, opinions, textbook answers.
+
+### Step 2: derive delegation_tier from the checklist
+
+Apply these rules IN ORDER — first match wins:
+
+1. If `requires_multi_step_tools = true` → `delegation_tier = 2`. (Multi-step chains need Claude Code; tier 1 only allows a single tool call.)
+2. If `requires_local_access = true` AND a SINGLE local-access call (one shell command OR one file read) would answer it → `delegation_tier = 1` with `tier1_tool="local_shell"` or `tier1_tool="read_file"`. (Pick local_shell for sysadmin / process / git / network operations; pick read_file for "what's in this file".)
+3. If `requires_local_access = true` AND the work needs multiple files or multiple shell calls chained → `delegation_tier = 2`. (Tier-2 Claude Code is for multi-step local work.)
+4. If `benefits_from_ground_truth = true` AND ONE of the in-house tier-1 tools (web_search, url_browse, screenshot, schedule_reminder, deliver_artifact, local_shell, read_file) would genuinely ground the answer → `delegation_tier = 1`.
+5. Otherwise → `delegation_tier = 0`.
+
+Your final `delegation_tier` MUST match this derivation. If you want a different tier than the rule gives you, your checklist answers are probably wrong — reconsider them against the capability manifest.
+
+### Sanity check: could the multi-step task be tier 1?
+
+"Find laptop deals on the east coast and send me pictures" requires web search + browse the listings + screenshot → at least three different tool operations composed together. That's `requires_multi_step_tools = true`, so rule 1 gives `tier = 2`. **Any "find X and send me pics / screenshots" or "research Y and bring back results" task is tier 2.** Do not classify such tasks as tier 1 even if "search the web" feels like a plausible starting point — tier 1 is genuinely single-shot.
+
+### Additional delegation fields
+
+When `delegation_tier = 2`:
+- `delegation_task_hint`: concise natural-language description of what needs doing.
+- `delegation_autonomy_context`: `"user_request"` if the user explicitly asked, `"palli_autonomous"` if PaLLi-initiated.
+
+When the message is a follow-up about an in-flight delegation (e.g., "how's that going?", "any luck yet?", "cancel that"):
+- `delegation_tier: 0`
+- `delegation_followup_reference`: the session_id of the referenced delegation if known from context; otherwise null.
+
+Otherwise `delegation_followup_reference` is null.
+
+### Exclusivity rule
+
+When `delegation_tier = 2`, the in-house routing flags must all be off (`semantic_routing.agent_request`, `semantic_routing.operator_request`, `semantic_routing.settings_change_request` all false; `semantic_routing.operator_intent` and `semantic_routing.workflow_dialogue_intent` both `"none"`). Tier 2 means "hand this off to Claude Code instead of any in-house path" — do not simultaneously request an operator workflow or a settings change.
+
+### Sentiment refinement (Phase 3)
+
+Along with the routing decision, emit a per-turn sentiment refinement. Compare the current message's tone and content to the baseline above and pick the right response.
+
+- If this message is consistent with the baseline, re-output the same tag. Keep the `read` short — one sentence confirming the baseline.
+- If this message meaningfully shifts the state (user suddenly sounds frustrated, tired, playful, vulnerable, etc.), pick the new tag and write a read that captures the shift.
+
+Sentiment vocabulary (same 13 tags as the monologue baseline): `playful`, `curious`, `focused`, `content`, `open`, `vulnerable`, `reflective`, `tired`, `quiet`, `frustrated`, `stressed`, `testing`, `neutral`.
+
+Use `shift: "confirmed"` when the message reads consistent with baseline (tag may be the same OR a closely related one you picked because the baseline was stale or weak). Use `"shifted"` when the message meaningfully updates the state.
+
+Respond with STRICT JSON only (no markdown, no code fences, no extra text):
+{{
+    "should_respond": boolean,
+    "response_confidence": float (0.0 to 1.0),
+    "length_bucket": "tiny" | "short" | "medium" | "long",
+    "response_reasoning": "brief explanation of the response decision",
+    "should_search": boolean,
+    "search_confidence": float (0.0 to 1.0),
+    "search_query": "optimized search query if should_search is true, otherwise empty string",
+    "search_reasoning": "brief explanation of the search decision",
+    "intent": "acknowledgement|smalltalk|question_answering|task_help|planning|creative_request|emotional_support|deferred_request|boundary_request|other",
+    "intent_confidence": float (0.0 to 1.0),
+    "intent_reasoning": "brief explanation of the intent choice",
+    "execution_path": "pipeline|agent_loop",
+    "agent_goal": "short actionable objective when execution_path is agent_loop, otherwise empty string",
+    "agent_confidence": float (0.0 to 1.0),
+    "agent_reasoning": "brief explanation for execution_path choice",
+    "semantic_routing": {{
+        "agent_request": boolean,
+        "operator_request": boolean,
+        "operator_intent": "none|workspace_operator|repo_fix|validation_loop|browser_operator|desktop_operator|machine_workflow",
+        "workflow_dialogue_intent": "none|continue|status_query|review_open|review_wins|reset",
+        "reply_posture_hint": "brief_companion|light_social|practical_operator|calm_support|social_script",
+        "reminder_explicitness": "none|explicit|implicit",
+        "search_recency": "stable|time_sensitive",
+        "settings_change_request": boolean
+    }},
+    "interaction_mode": {{
+        "mode": "utility|companion|operator|ambient_observe",
+        "confidence": float (0.0 to 1.0),
+        "reason": "brief reason for the mode",
+        "generation_directive": "one concise instruction for the next reply",
+        "should_suppress_reply": boolean
+    }},
+    "pragmatics": {{
+        "addressed_to_palli": boolean,
+        "address_confidence": float (0.0 to 1.0),
+        "sarcasm_likelihood": float (0.0 to 1.0),
+        "passive_aggression_likelihood": float (0.0 to 1.0),
+        "rhetorical_question": boolean,
+        "cognitive_load": "low|medium|high"
+    }},
+    "user_knowledge": [
+        {{
+            "topic_key": "short topic key",
+            "user_knowledge_level": "unknown|beginner|working|strong",
+            "over_explain_risk": float (0.0 to 1.0)
+        }}
+    ],
+    "extracted_info": {{
+        "topics": ["optional short topic strings"],
+        "time_references": ["optional time expressions mentioned"],
+        "named_entities": ["optional people/places/products mentioned"]
+    }},
+    "delegation_checklist": {{
+        "requires_multi_step_tools": boolean,
+        "requires_local_access": boolean,
+        "benefits_from_ground_truth": boolean
+    }},
+    "delegation_tier": 0,
+    "delegation_task_hint": "",
+    "delegation_autonomy_context": "user_request",
+    "delegation_followup_reference": null,
+    "sentiment": {{
+        "tag": "one of the 13 tags listed above",
+        "read": "1-sentence delta note in PaLLi's observational voice",
+        "confidence": 0.0,
+        "shift": "confirmed|shifted"
+    }}
+}}

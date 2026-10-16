@@ -1,0 +1,10 @@
+What is the emotional state or mood of the user based on their message?
+What is the user's primary intent or goal with this message?
+What level of urgency or importance does this message convey?
+What communication style is the user employing (formal, casual, direct, indirect)?
+Are there any underlying concerns or anxieties expressed in the message?
+What topics or subjects is the user most interested in discussing?
+Does the user seem to want a detailed response or a brief acknowledgment?
+What type of support or assistance is the user seeking, if any?
+Are there any cultural or contextual references that should be considered?
+What is the user's apparent level of expertise or familiarity with the topic?

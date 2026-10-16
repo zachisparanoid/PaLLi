@@ -1,0 +1,21 @@
+Match the user's query to the most relevant image.
+
+Recent conversation:
+{history_context}
+
+Available images:
+{images_context}
+
+User's query: "{user_query}"
+
+Which image is the user most likely asking about? Consider:
+1. Recency (more recent images are more likely)
+2. Description match (does description contain related terms?)
+3. Conversation flow (was the image recently discussed?)
+
+Respond with STRICT JSON only (no markdown, no code fences, no extra text):
+{{
+    "image_id": integer,
+    "confidence": float (0.0 to 1.0),
+    "reasoning": "why this image matches"
+}}

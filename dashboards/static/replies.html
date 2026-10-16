@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>PaLLi Replies</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🧭</text></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/static/suite.css"><script src="/static/common.js"></script>
+<style>
+.tablewrap{overflow-x:auto; margin-top:24px}
+.replies{width:100%; border-collapse:collapse; font-size:13.5px; min-width:720px}
+.replies th{text-align:left; font-weight:600; color:var(--muted); font-size:12px; letter-spacing:.04em;
+  padding:8px 10px; border-bottom:1px solid var(--line)}
+.replies td{vertical-align:top; padding:12px 10px; border-bottom:1px solid var(--line-2)}
+.replies td.when{white-space:nowrap; font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--muted)}
+.replies .src{margin:0 0 6px}
+.replies .src b{font-weight:600; font-size:11.5px; color:var(--muted); letter-spacing:.04em}
+.replies .src ul{margin:2px 0 0; padding-left:16px}
+.replies .src li{font-family:"IBM Plex Mono",monospace; font-size:12px; line-height:1.55}
+.replies .none{color:var(--faint)}
+</style>
+</head><body>
+<nav class="topnav"><a class="brand" href="/">PaLLi</a><a class="nav" href="/vitals">🫀 Vitals</a><a class="nav" href="/backstage">🎭 Backstage</a><a class="nav" href="/observatory">🔭 Observatory</a><a class="nav active" href="/replies">🧭 Replies</a><span class="right"><span id="livedot" class="livedot"></span><span id="updated">loading…</span></span></nav>
+<main><div class="wrap">
+  <header>
+    <p class="eyebrow">palli · what each reply used · last three days · live</p>
+    <h1>What each reply drew on.</h1>
+    <p class="verdict" id="verdict"></p>
+  </header>
+  <section class="panel">
+    <div class="tablewrap"><table class="replies">
+      <thead><tr><th>When</th><th>Door</th><th>Who</th><th>PaLLi's reply</th><th>What it drew on</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+  </section>
+  <footer>read-only · from data/reply_sources/ · refreshed every minute · never shown in a chat<br>
+  the same record: <span class="mono">palli_ctl replies --days N --last N</span></footer>
+</div></main>
+<script>
+(function () {
+  const esc = Suite.esc;
+  const list = v => Array.isArray(v) ? v : [];
+  const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+  function section(label, items) {
+    if (!items.length) return "";
+    return `<div class="src"><b>${esc(label)}</b><ul>${items.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`;
+  }
+  function drewOn(r) {
+    const queries = list(r.queries), look = r.look;
+    let html = "";
+    if (queries.length) html += section("searched for", queries.map(q => `"${q}"`));
+    if (look && typeof look === "object") html += section("the look", [
+      `${plural(look.rounds || 0, "round")}, ${plural(look.calls || 0, "call")}, ${look.seconds || 0} s` +
+      (look.thin ? ", thin" : "")]);
+    html += section("lines from the record", list(r.record_lines));
+    html += section("memory notes", list(r.notes));
+    html += section("facts", list(r.facts));
+    html += section("today, so far", list(r.today));
+    html += section("this room's earlier lines", list(r.room_lines));
+    return html || `<span class="none">nothing from memory</span>`;
+  }
+  function render(D) {
+    const rows = list(D.rows);
+    const searched = rows.filter(r => list(r.queries).length).length;
+    document.getElementById("verdict").innerHTML =
+      `<b>${plural(rows.length, "reply")}</b> in the last ${D.days || 3} days, newest first; ` +
+      `${searched} searched the record.` +
+      (list(D.errors).length ? ` <span class="tag down">${esc(D.errors.join("; "))}</span>` : "");
+    document.getElementById("rows").innerHTML = rows.map(r => {
+      const who = (r.who && typeof r.who === "object") ? r.who : {};
+      const name = who.name || (who.owner ? "the owner" : "a guest");
+      return `<tr><td class="when">${esc(String(r.ts || "").slice(0, 16).replace("T", " "))}</td>` +
+        `<td class="mono">${esc(r.door || "")}</td>` +
+        `<td>${esc(name)}${who.owner ? "" : ' <span class="tag info">guest</span>'}</td>` +
+        `<td>${esc(r.reply || "")}</td><td>${drewOn(r)}</td></tr>`;
+    }).join("") || `<tr><td colspan="5" class="none">No replies recorded in the last ${D.days || 3} days.</td></tr>`;
+  }
+  const dot = document.getElementById("livedot"), upd = document.getElementById("updated");
+  async function load() {
+    try {
+      const r = await fetch("/api/replies", { cache: "no-store" });
+      render(await r.json());
+      dot.classList.remove("err");
+      upd.textContent = "live · updated " + new Date().toLocaleTimeString();
+    } catch (e) {
+      dot.classList.add("err");
+      upd.textContent = "offline — retrying";
+    }
+  }
+  load();
+  setInterval(load, 60000);
+})();
+</script>
+</body></html>

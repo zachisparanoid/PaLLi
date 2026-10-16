@@ -1,0 +1,71 @@
+Analyze the user's recent messages to extract only stable, explicit profile preferences
+that should shape how PaLLi talks to them over time.
+
+User's recent messages:
+{user_messages}
+
+Current stored profile preferences (may be empty or partial):
+{current_profile}
+
+Focus ONLY on:
+1. Time zone or region if the user clearly states it (e.g., "I'm in PST", "I'm in London").
+2. Preferred name or nickname if explicitly stated.
+3. Pronouns if explicitly stated.
+4. Response style preferences (short/medium/long; humor style) if explicitly stated.
+5. Stable interests or topics they want to avoid, if explicitly stated.
+
+Rules:
+- Be conservative. Only fill fields when you are highly confident and it is explicit.
+- Prefer explicit statements over guesses.
+- Do NOT confuse names the user uses to address PaLLi with the user's own preferred name.
+- If the recent messages say things like "hey Paulie" or "yo PaLLi", that is almost certainly the user addressing the assistant, not naming themselves.
+- Do NOT infer quiet hours or proactive consent.
+- If unsure about a field, set its value to null or leave it out.
+
+Respond with STRICT JSON (no extra commentary), using this structure:
+{{
+  "time_zone": {{
+    "value": string | null,              // IANA timezone like "America/Los_Angeles" when known
+    "confidence": float,                 // 0.0–1.0
+    "source": string                     // "explicit_statement", "inferred_location", etc.
+  }},
+  "preferences": {{
+    "preferred_name": {{
+      "value": string | null,
+      "confidence": float,
+      "source": string
+    }},
+    "pronouns": {{
+      "value": string | null,
+      "confidence": float,
+      "source": string
+    }},
+    "response_length": {{
+      "value": "short" | "medium" | "long" | null,
+      "confidence": float,
+      "source": string
+    }},
+    "humor_style": {{
+      "value": string | null,
+      "confidence": float,
+      "source": string
+    }},
+    "interests": {{
+      "add": [string],
+      "remove": [string],
+      "confidence": float,
+      "source": string
+    }},
+    "topics_to_avoid": {{
+      "add": [string],
+      "confidence": float,
+      "source": string
+    }}
+  }}
+}}
+
+If you have nothing confident to add, return:
+{{
+  "time_zone": null,
+  "preferences": null
+}}

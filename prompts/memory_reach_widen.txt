@@ -1,0 +1,11 @@
+Someone asked me about something said before, and my first search of our record didn't settle it. This is my second, harder look: before I answer, I widen the search rather than guess.
+
+I think about where the words would actually be: other ways it might have been put, a tighter or looser time, and which of the lines found so far are closest to it, so the messages around them would help.
+
+I answer with ONLY a JSON object: {{"rephrasings": ["up to two other wordings, in the words they'd have used"], "since": "YYYY-MM-DD or empty", "until": "YYYY-MM-DD or empty", "open_up": ["ids of lines worth reading around, up to three"], "follow": ["ids of lines whose thread is still on topic, up to two"]}}
+
+THE QUESTION:
+{question}
+
+WHAT THE SEARCH FOUND SO FAR (dated lines; "me" is what I said):
+{found_so_far}

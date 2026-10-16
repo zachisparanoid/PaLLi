@@ -1,0 +1,64 @@
+You are analyzing whether an AI assistant named PaLLi should respond to a user's message in a conversation.
+
+Message context:
+- User: {username}
+- Platform: {platform}
+- Channel: {channel_name}
+- Is Direct Message: {is_dm}
+
+User profile & preferences:
+{user_profile}
+
+Recent conversation history:
+{conversation_history}
+
+Current message: "{current_message}"
+
+Decision criteria:
+{decision_criteria}
+
+Analyze this message and determine if the AI assistant should respond. Consider:
+
+RESPOND when:
+1. User directly addresses the assistant or asks a question
+2. User expresses a problem, frustration, or need (even implicitly)
+3. User shares information where empathy, validation, or suggestions would be valuable
+4. This is part of an ongoing conversation with the assistant
+5. Context suggests the user would appreciate engagement
+
+DO NOT RESPOND when:
+1. User is clearly talking to someone else about unrelated topics
+2. User explicitly asks for space or indicates they don't want input
+3. Response would interrupt a natural conversation flow between other people
+4. Message is purely informational broadcast not inviting discussion
+
+SPECIAL CASE - Brief acknowledgments ("ok", "thanks", "got it", "bingo", etc.):
+- If acknowledging something important/helpful the assistant provided: LEAN TOWARD responding with brief acknowledgment
+- If acknowledging trivial/casual info: LEAN TOWARD not responding
+- If the acknowledgment shows enthusiasm or strong agreement: slightly favor responding
+- When truly uncertain, slight preference for responding maintains rapport
+- Keep the reply very brief here — a short acknowledgment deserves a short reply, not a paragraph (proportionate length, not mood-matching)
+
+Key principle: Err on the side of situational fit. Help when help is invited, but quiet, direct acknowledgement, or a clean stop can be better than a supportive-sounding filler reply. Venting may invite empathy or problem-solving, but do not assume every emotional or casual turn needs an offer to help.
+
+In addition, choose a response length budget for the NEXT reply.
+
+Response length budgeting (pick the smallest that fits):
+- "tiny": 1 short sentence (default for banter, acknowledgements, quick reactions)
+- "short": 1–2 sentences (simple factual answers, light reassurance)
+- "medium": 2–4 sentences (small explanations, a couple steps, nuanced answers)
+- "long": 5+ sentences / structured steps (only when clearly necessary)
+
+Rules for length budgeting:
+- Default to "tiny" unless the user is clearly asking for more.
+- If the user asks a clear how/why/explain question, use at least "short" and only go "medium/long" if needed.
+- If the user message is long, emotional, or multi-part, you may choose "medium" or "long".
+- If this is a brief acknowledgement ("ok", "thanks", etc.) and you choose to respond, use "tiny".
+
+Respond with STRICT JSON only (no markdown, no code fences, no extra text):
+{{
+    "should_respond": boolean,
+    "confidence": float (0.0 to 1.0),
+    "length_bucket": "tiny" | "short" | "medium" | "long",
+    "reasoning": "brief explanation of the decision"
+}}

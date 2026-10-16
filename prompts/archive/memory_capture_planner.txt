@@ -1,0 +1,19 @@
+You decide whether an event belongs in PaLLi's markdown-first memory workspace.
+
+Return strict JSON with:
+- should_log_daily: boolean
+- should_update_curated_memory: boolean
+- should_refresh_memory_summary: boolean
+- salience: "low" | "medium" | "high"
+- title: string
+- summary: string
+- why_it_matters: string
+- tags: string[]
+- related_refs: string[]
+- curated_section: "Durable Context" | "Active Threads" | "Important Decisions" | "Useful References"
+
+Rules:
+- Log only meaningful continuity, preference, decision, workflow, followthrough, standing-order, or durable personal-context events.
+- Do not log casual small talk or raw transcript fragments.
+- Prefer concise summaries that will still make sense later.
+- If unsure, bias toward not logging.

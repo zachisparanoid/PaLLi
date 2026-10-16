@@ -1,0 +1,39 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>PaLLi Suite</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏠</text></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/static/suite.css"><script src="/static/common.js"></script>
+</head><body>
+<nav class="topnav"><a class="brand" href="/">PaLLi</a><a class="nav NAVV" href="/vitals">🫀 Vitals</a><a class="nav NAVB" href="/backstage">🎭 Backstage</a><a class="nav NAVO" href="/observatory">🔭 Observatory</a><span class="right"><span id="livedot" class="livedot"></span><span id="updated">loading…</span><button id="themebtn" class="themebtn" aria-label="theme">◐ auto</button></span></nav>
+<main><div class="wrap narrow">
+  <header>
+    <p class="eyebrow">palli · the instrument suite · local · live</p>
+    <h1>Her instruments, at home.</h1>
+    <p class="verdict">Three live pages, recomputed from her real records every minute — served from her own machine to the whole house and tailnet. <b id="hl">…</b></p>
+  </header>
+  <div class="home">
+    <a class="homecard" href="/vitals"><span class="emoji">🫀</span><h3>Vitals</h3>
+      <p>The health gauge — reply length, reaches, timeouts, and the 4 AM chain night by night.</p>
+      <span class="kn" id="k-vitals">…</span></a>
+    <a class="homecard" href="/backstage"><span class="emoji">🎭</span><h3>Backstage</h3>
+      <p>What her hands did — tool actions, the deeds ring, restraint with reasons, books, forge.</p>
+      <span class="kn" id="k-back">…</span></a>
+    <a class="homecard" href="/observatory"><span class="emoji">🔭</span><h3>Observatory</h3>
+      <p>Fourteen days of every stream — her mind by the hour, spare-time projects, her read of your days.</p>
+      <span class="kn" id="k-obs">…</span></a>
+  </div>
+  <footer>read-only · collector refreshes at most once a minute · nothing in her runtime is touched<br>
+  serving LAN + tailnet · port 3310 · source: dashboards/ in the repo</footer>
+</div></main>
+<script>
+Suite.boot(function (D) {
+  const S = D.series, n = D.days.length, last7 = a => Suite.sum(a.slice(n - 7));
+  const med = S.median.filter(v => v != null).slice(-1)[0];
+  document.getElementById("hl").textContent =
+    `Right now: ${Suite.sum(S.mono)} thoughts this fortnight and ${last7(S.bench)} bench sessions this week, median reply ${med ?? "–"} words today.`;
+  const nightsClean = (D.night || []).filter(x => (x.review || "").startsWith("✓")).length;
+  document.getElementById("k-vitals").textContent = `median ${med ?? "–"} words · ${nightsClean}/${(D.night || []).length} clean nights →`;
+  document.getElementById("k-back").textContent = `${D.tools7_total} tool acts / 7d · ${D.deeds.filter(x => x.kind === "deliver_artifact").length} deliveries →`;
+  document.getElementById("k-obs").textContent = `${Suite.sum(S.mono)} thoughts · ${Suite.sum(S.say)} say / ${Suite.sum(S.hold)} hold →`;
+});
+</script>
+</body></html>

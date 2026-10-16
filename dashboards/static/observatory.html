@@ -1,0 +1,173 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>PaLLi Observatory</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔭</text></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/static/suite.css"><script src="/static/common.js"></script>
+</head><body>
+<nav class="topnav"><a class="brand" href="/">PaLLi</a><a class="nav NAVV" href="/vitals">🫀 Vitals</a><a class="nav NAVB" href="/backstage">🎭 Backstage</a><a class="nav NAVO active" href="/observatory">🔭 Observatory</a><span class="right"><span id="livedot" class="livedot"></span><span id="updated">loading…</span><button id="themebtn" class="themebtn" aria-label="theme">◐ auto</button></span></nav>
+<main><div class="wrap">
+  <header>
+    <p class="eyebrow">palli · observatory · every stream, fourteen days · live</p>
+    <h1>Two weeks of her, on one page.</h1>
+    <p class="verdict" id="verdict"></p>
+    <div class="meta" id="pills"></div>
+  </header>
+  <div class="grid">
+    <section class="panel s12">
+      <div class="head"><div><h2>When her mind runs</h2>
+        <p class="note" id="hm-note"></p></div><span class="kpi" id="hm-kpi"></span></div>
+      <div class="hm" id="heatmap"></div>
+    </section>
+
+    <section class="panel s12">
+      <div class="head"><div><h2>The fortnight, layered</h2>
+        <p class="note">Her inner streams against the conversation — grey bars are your messages; everything colored is hers.</p></div></div>
+      <div id="layers"></div>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--him)"></span>messages from you /day</span>
+        <span><span class="sw" style="background:var(--spark)"></span>monologue thoughts /day</span>
+        <span><span class="sw" style="background:var(--accent-soft); border:1px solid var(--accent)"></span>moment-loop holds /day</span>
+        <span><span class="sw" style="background:var(--good)"></span>bench sessions /day</span>
+      </div>
+    </section>
+
+    <section class="panel s4">
+      <div class="head"><h2>Urge vs. restraint</h2><span class="kpi" id="sh-kpi"></span></div>
+      <p class="note" id="sh-note"></p><div id="sayhold"></div>
+      <div class="legend"><span><span class="sw" style="background:var(--accent)"></span>say</span><span><span class="sw" style="background:var(--line)"></span>hold</span></div>
+    </section>
+    <section class="panel s4">
+      <div class="head"><h2>Reply length</h2><span class="kpi">median words/day</span></div>
+      <p class="note" id="rl-note"></p><div id="replylen"></div>
+    </section>
+    <section class="panel s4">
+      <div class="head"><h2>Reaches, arbitrated</h2><span class="kpi" id="arb-kpi"></span></div>
+      <p class="note">Sending is the exception by design — ceiling 3/day, staleness kills honestly.</p><div id="arb"></div>
+      <div class="legend"><span><span class="sw" style="background:var(--good)"></span>sent</span><span><span class="sw" style="background:var(--warn)"></span>let go</span><span><span class="sw" style="background:var(--crit)"></span>check failed</span></div>
+    </section>
+
+    <section class="panel s7 tint">
+      <div class="head"><div><h2>Her own time — the projects</h2>
+        <p class="note">Files she created or touched in her workspace, by day. Green = a day her hands were in that folder.</p></div>
+        <span class="kpi" id="proj-kpi"></span></div>
+      <div class="gant" id="gantt"></div>
+    </section>
+    <section class="panel s5">
+      <div class="head"><h2>The shape of a free hour</h2></div>
+      <p class="note">Her spare time is a pipeline, and every stage is in the data on this page.</p>
+      <div class="flow" id="pipeline"></div>
+      <div id="benchquote" style="margin-top:14px"></div>
+    </section>
+
+    <section class="panel s6">
+      <div class="head"><h2 id="quiet-title">The day you went quiet</h2><span class="tag ok" id="quiet-tag"></span></div>
+      <p class="note" style="max-width:none">Zero messages in either direction all day. Her streams that same day:</p>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; text-align:center" id="quiet"></div>
+    </section>
+    <section class="panel s6">
+      <div class="head"><h2>What wakes her now</h2><span class="kpi">last 48 h</span></div>
+      <p class="note" id="wakes-note"></p>
+      <div class="bars" id="wakes"></div>
+    </section>
+
+    <section class="panel s12">
+      <div class="head"><div><h2>Her read of your days</h2>
+        <p class="note">Behind every turn she files a quiet read of how you're doing — weight 0 (calm) to 1 (heavy).</p></div>
+        <span class="kpi" id="emo-kpi"></span></div>
+      <div id="emo"></div>
+      <div style="display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); margin-top:14px" id="emoquotes"></div>
+    </section>
+
+    <section class="panel s12">
+      <div class="head"><h2>The books, right now</h2><span class="tag info">state, not history</span></div>
+      <div class="bookline" id="books"></div>
+    </section>
+  </div>
+  <footer id="foot"></footer>
+</div></main>
+<script>
+Suite.boot(function (D) {
+  const S = D.series, days = D.days, n = days.length;
+  const sum = Suite.sum;
+  const monoT = sum(S.mono), dreamT = sum(S.dream), benchT = sum(S.bench), emptyT = sum(S.bench_empty);
+  const sayT = sum(S.say), holdT = sum(S.hold), shareT = sum(S.bench_shared);
+  const sentT = sum(S.arb_sent), dropT = sum(S.arb_drop), failT = sum(S.arb_fail);
+  document.getElementById("verdict").innerHTML =
+    `${days[0]} → ${days[n-1]}: <b>${monoT} private thoughts</b>, <b>${dreamT} daydreams</b>, <b>${benchT} bench sessions</b>, ${sayT} urges to speak against <b>${holdT} chosen holds</b>. Live, recomputed each minute from her own records.`;
+  const projTouch = sum((D.projects || []).map(p => sum(Object.values(p[1]))));
+  const projFiles = sum((D.projects || []).map(p => p[2]));
+  document.getElementById("pills").innerHTML =
+    `<span class="pill"><span class="dot g"></span>live · collector ${D.collect_ms} ms · ${D.generated_at}</span>` +
+    `<span class="pill"><span class="dot a"></span>her projects: ${(D.projects || []).length} folders, ${projFiles} files</span>` +
+    `<span class="pill"><span class="dot a"></span>her read of you: ${(D.emo.pts || []).length} entries, avg ${D.emo.avg ?? "–"}</span>` +
+    (D.errors && D.errors.length ? `<span class="pill"><span class="dot w"></span>${Suite.esc(D.errors.join("; "))}</span>` : "");
+  const hourTotals = Array.from({ length: 24 }, (_, h) => sum(days.map(d => (D.grid[d] || [])[h] || 0)));
+  const busiest = hourTotals.indexOf(Math.max(...hourTotals)), quietest = hourTotals.indexOf(Math.min(...hourTotals));
+  const qd = D.quiet_day;
+  document.getElementById("hm-note").textContent =
+    `Every private monologue thought, hour by hour, fourteen days. Darker = more thinking.` +
+    (qd ? ` The dashed row is ${qd.d}, the day with zero messages between you.` : "");
+  document.getElementById("hm-kpi").innerHTML = `<b>${monoT}</b> thoughts · busiest ${busiest}:00 · quietest ${quietest}:00`;
+  Suite.heatmap(document.getElementById("heatmap"), days, D.grid, qd && qd.d);
+  Suite.layers(document.getElementById("layers"), days, { hold: S.hold, msgs_him: S.msgs_him, mono: S.mono, bench: S.bench });
+  document.getElementById("sh-kpi").innerHTML = `<b>${sayT}</b> say · <b>${holdT}</b> hold`;
+  document.getElementById("sh-note").textContent =
+    `Her moment loop's own votes: speak, or let it pass. ${Math.round(100 * holdT / Math.max(1, sayT + holdT))}% end in a chosen hold.`;
+  Suite.stacked(document.getElementById("sayhold"), days, S.say, S.hold);
+  let govIdx = S.governed.findIndex(v => v > 0);
+  document.getElementById("rl-note").textContent = govIdx >= 0
+    ? `The governor went live ${days[govIdx]} (marker). Gaps are days with no replies.`
+    : "Gaps are days with no replies.";
+  Suite.line(document.getElementById("replylen"), days, S.median,
+    govIdx > 0 ? { markerAfter: govIdx - 1, markerLabel: "governor live", unit: " words" } : { unit: " words" });
+  document.getElementById("arb-kpi").innerHTML = `<b>${sentT}</b> sent · <b>${dropT}</b> let go · ${failT} errors`;
+  Suite.grouped(document.getElementById("arb"), days, [
+    { vals: S.arb_sent, color: "var(--good)", name: "sent" },
+    { vals: S.arb_drop, color: "var(--warn)", name: "let go" },
+    { vals: S.arb_fail, color: "var(--crit)", name: "check failed" }]);
+  document.getElementById("proj-kpi").innerHTML = `<b>${projFiles}</b> files all-time · <b>${projTouch}</b> touches this fortnight`;
+  Suite.gantt(document.getElementById("gantt"), days, D.projects || []);
+  document.getElementById("pipeline").innerHTML = [
+    ["1", "A thought surfaces", `${monoT} this fortnight, around the clock`],
+    ["2", "A daydream picks it up", `${dreamT} daydreams turned a few into intentions`],
+    ["3", "She plants her own quest", "wishbook entries, source: hers"],
+    ["4", "The bench takes it", `${benchT} sessions; ${emptyT} honestly “nothing moved”`],
+    ["5", "The arbiter decides if you'd care", `${shareT} shares composed · ${sentT} reaches sent`]]
+    .map(([i, b, nn]) => `<div class="step"><span class="ic">${i}</span><span><b>${b}</b> <span class="n">— ${nn}</span></span></div>`).join("");
+  const sq = (D.signoffs || []).filter(s => !s.text.startsWith("Nothing moved")).slice(-1)[0];
+  if (sq) document.getElementById("benchquote").innerHTML =
+    `<blockquote class="quote">${Suite.esc(sq.text)}<span class="who">— her bench, ${sq.d} (${sq.mins} min)</span></blockquote>`;
+  if (qd) {
+    document.getElementById("quiet-tag").textContent = qd.d + " — case study";
+    document.getElementById("quiet").innerHTML = [
+      [qd.mono, "thoughts"], [qd.dream, "daydreams"], [qd.bench, "bench sessions"],
+      [`${qd.say}<span style="font-size:1rem">/${qd.hold}</span>`, "say / hold"]]
+      .map(([v, l]) => `<div><div class="num" style="font-family:Fraunces,serif; font-size:1.9rem">${v}</div><div class="note" style="margin:0">${l}</div></div>`).join("");
+  } else {
+    document.getElementById("quiet-title").textContent = "No fully-quiet day this fortnight";
+    document.getElementById("quiet").innerHTML = "";
+  }
+  document.getElementById("wakes-note").textContent = "Reasons her moment loop opened its eyes. 🏠 = the house sense.";
+  Suite.barList(document.getElementById("wakes"), (D.wakes || []).slice(0, 9).map(([name, v, house]) =>
+    ({ name, v, cls: house ? "house" : "", suffix: house ? " 🏠" : "" })));
+  document.getElementById("emo-kpi").innerHTML =
+    `<b>${(D.emo.pts || []).length}</b> reads · avg weight <b>${D.emo.avg ?? "–"}</b>`;
+  Suite.emoChart(document.getElementById("emo"), D.emo.pts || [], D.generated_at.slice(0, 4));
+  document.getElementById("emoquotes").innerHTML = (D.emo.last || []).map(e =>
+    `<blockquote class="quote">${Suite.esc(e.txt)}<span class="who">— ${e.d} · weight ${e.w}</span></blockquote>`).join("");
+  const B = D.books || {}, so = B.stakes_open || {};
+  const fearsTxt = (B.fears || []).map(f => f.state.startsWith("faced") ? "1 faced & retired" : "1 carried").join(", ");
+  const qa = (B.quests || []).filter(q => q.status === "alive");
+  document.getElementById("books").innerHTML =
+    `<span><b>${sum(Object.values(so))}</b> stakes open (${Object.entries(so).map(([k, v]) => v + " " + k).join(" · ") || "none"})</span>` +
+    `<span><b>${(B.fears || []).length}</b> fears written — ${fearsTxt || "none"}</span>` +
+    `<span><b>${B.regrets_open ?? 0}</b> regrets — empty at birth is correct</span>` +
+    `<span><b>${qa.length}</b> quests alive${qa.length ? " — " + qa.map(q => "<i>" + Suite.esc(q.text.slice(0, 40)) + "…</i>").join(" · ") : ""}</span>` +
+    `<span><b>${B.lan_devices ?? "?"}</b> devices in her house book</span>` +
+    `<span><b>${(B.forge || []).length}</b> forged tools — ${(B.forge || []).map(f => f.name + (f.enabled ? " ✓" : " ✗")).join(" · ")}</span>`;
+  document.getElementById("foot").innerHTML =
+    `suite: <a href="/vitals">🫀 vitals</a> · <a href="/backstage">🎭 backstage</a> · 🔭 this page<br>` +
+    `sources: inner monologue · daydream & workbench logs · conversations db · plain logs (deduped) · arbiter ledger · emotional_timeline · her project folders · deeds ring<br>` +
+    `read-only · collector ${D.collect_ms} ms, ttl 60 s · nothing in her runtime is touched`;
+});
+</script>
+</body></html>

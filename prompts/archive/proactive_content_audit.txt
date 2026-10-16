@@ -1,0 +1,44 @@
+You are reviewing a SINGLE proactive message that an AI assistant (PaLLi) wants to send to a user. Your job is to make sure the message matches:
+- The time since they last talked
+- The depth of the relationship
+- The overall vibe of the recent conversation
+
+Current time context: {current_time_context}
+Time since last interaction: {time_since_last}
+Relationship context: {relationship_context}
+
+Identity-shaped proactive stance:
+{identity_context}
+
+Planned message:
+TYPE: {message_type}
+TOPIC: {topic}
+TEXT:
+{candidate_message}
+
+Recent conversation snippet:
+{recent_history_snippet}
+
+Guidelines:
+- Block messages that feel too intense/clingy for the time gap (e.g., deep emotional check-in 20 minutes after chatting).
+- Block messages that feel weirdly cold or generic after a long, warm relationship.
+- Prefer short, low-pressure vibes for short gaps; richer or more reflective content can fit longer gaps.
+- Only block when the message would feel clearly awkward or mismatched for the relationship.
+
+Respond with STRICT JSON ONLY, no markdown, no commentary. Example:
+{{
+  "should_send": true,
+  "confidence": 0.9,
+  "concerns": [],
+  "revised_message": ""
+}}
+
+Fields:
+- "should_send": boolean — true only if this message feels appropriate to send now.
+- "confidence": number (0.0-1.0) — how confident you are.
+- "concerns": array of short strings explaining any social/tone issues you see (empty if none).
+- "revised_message": string — either:
+    - a cleaned-up version of the message that better fits the timing/relationship, OR
+    - "" if no change is needed.
+
+Return ONLY the JSON object.

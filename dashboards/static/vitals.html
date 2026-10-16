@@ -1,0 +1,91 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>PaLLi Vitals</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🫀</text></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/static/suite.css"><script src="/static/common.js"></script>
+</head><body>
+<nav class="topnav"><a class="brand" href="/">PaLLi</a><a class="nav NAVV active" href="/vitals">🫀 Vitals</a><a class="nav NAVB" href="/backstage">🎭 Backstage</a><a class="nav NAVO" href="/observatory">🔭 Observatory</a><span class="right"><span id="livedot" class="livedot"></span><span id="updated">loading…</span><button id="themebtn" class="themebtn" aria-label="theme">◐ auto</button></span></nav>
+<main><div class="wrap narrow">
+  <header>
+    <p class="eyebrow">palli · vitals · live gauge</p>
+    <h1 id="headline">Reading her pulse…</h1>
+    <p class="verdict" id="verdict"></p>
+    <div class="meta" id="pills"></div>
+  </header>
+  <div class="grid">
+    <div class="panel dial s3"><p class="label">Reply length</p><p class="big num" id="d-reply">–</p>
+      <p class="sub" id="d-reply-sub"></p><div class="foot" id="d-reply-spark"></div></div>
+    <div class="panel dial s3"><p class="label">Reaches</p><p class="big num" id="d-reach">–</p>
+      <p class="sub" id="d-reach-sub"></p><div class="foot" id="d-reach-chip"></div></div>
+    <div class="panel dial s3"><p class="label">Timeouts</p><p class="big num" id="d-to">–</p>
+      <p class="sub" id="d-to-sub"></p><div class="foot" id="d-to-chip"></div></div>
+    <div class="panel dial s3"><p class="label">4 AM chain</p><p class="big num" id="d-night">–</p>
+      <p class="sub" id="d-night-sub"></p><div class="foot" id="d-night-chip"></div></div>
+
+    <section class="panel s12">
+      <div class="head"><div><h2>The 4 AM chain, night by night</h2>
+        <p class="note">Her sleep — reflect, consolidate, review what she's carrying, redraw her picture of you, journal, sweep.</p></div></div>
+      <div style="overflow-x:auto"><table style="border-collapse:collapse; width:100%; min-width:620px; font-size:13.5px" id="nights"></table></div>
+    </section>
+
+    <section class="panel s6">
+      <div class="head"><h2>Latest from her bench</h2></div>
+      <div id="signoffs"></div>
+    </section>
+    <section class="panel s6">
+      <div class="head"><h2>The dials that gate her</h2></div>
+      <p class="note" style="margin-bottom:10px">The ceilings that actually bind — all knobs, not bugs.</p>
+      <div class="bookrow"><span class="k mono">own_work_daily_sessions: 3</span><span class="v">she fills all three most days</span></div>
+      <div class="bookrow"><span class="k mono">own_work_active_projects_max: 2</span><span class="v">more threads than slots</span></div>
+      <div class="bookrow"><span class="k mono">arbiter ceiling ≤ 3/day</span><span class="v">the big one on reaching you</span></div>
+    </section>
+  </div>
+  <footer>sources: conversations db · arbiter ledger · plain logs (deduped) · workbench log · collector at /api/stats, ttl 60 s</footer>
+</div></main>
+<script>
+Suite.boot(function (D) {
+  const S = D.series, n = D.days.length, last7 = a => Suite.sum(a.slice(n - 7));
+  const meds = S.median, med = meds.filter(v => v != null).slice(-1)[0];
+  const g7 = last7(S.governed);
+  const sent7 = last7(S.arb_sent), drop7 = last7(S.arb_drop);
+  const sayY = S.say[n - 2], holdY = S.hold[n - 2];
+  const nights = D.night || [];
+  const clean = nights.filter(x => (x.review || "").startsWith("✓")).length;
+  const lastN = nights[nights.length - 1] || {};
+  document.getElementById("headline").textContent = "She's doing well — and she's been busy.";
+  document.getElementById("verdict").innerHTML =
+    `Median reply <b>${med ?? "–"} words</b> today, <b>${sent7} reaches</b> sent this week against ${drop7} let go, and <b>${clean} of ${nights.length}</b> nights ran the review clean. Live from her records, refreshed every minute.`;
+  document.getElementById("pills").innerHTML =
+    `<span class="pill"><span class="dot g"></span>collector ${D.collect_ms} ms · ${D.generated_at}</span>` +
+    `<span class="pill"><span class="dot a"></span>28 / 34 steps live</span>` +
+    (D.errors && D.errors.length ? `<span class="pill"><span class="dot w"></span>${Suite.esc(D.errors.join("; "))}</span>` : "");
+  document.getElementById("d-reply").innerHTML = (med ?? "–") + "<small> med. words</small>";
+  document.getElementById("d-reply-sub").textContent = `governed ${g7}× this week (short ≤50 · medium ≤110)`;
+  Suite.spark(document.getElementById("d-reply-spark"), meds);
+  document.getElementById("d-reach").innerHTML = sent7 + "<small> sent / 7d</small>";
+  document.getElementById("d-reach-sub").textContent = `yesterday she wanted ${sayY}× and held ${holdY}×`;
+  document.getElementById("d-reach-chip").innerHTML = '<span class="chip warn">restraint is the norm</span>';
+  document.getElementById("d-to").innerHTML = D.timeouts7.gave_up + "<small> gave up / 7d</small>";
+  document.getElementById("d-to-sub").textContent = `${D.timeouts7.attempts} retried; ${D.timeouts7.gave_up_3d} gave up in the last 3 days`;
+  document.getElementById("d-to-chip").innerHTML = `<span class="chip ${D.timeouts7.gave_up_3d > 3 ? "crit" : "good"}">deep-tier ${D.timeouts7.gave_up_3d > 3 ? "strained" : "holding"}</span>`;
+  const steps = ["reflection", "gist", "review", "picture", "journal"];
+  const ok = steps.filter(k => lastN[k] === true || String(lastN[k] || "").startsWith("✓")).length;
+  document.getElementById("d-night").innerHTML = ok + "<small> of 5 last night</small>";
+  document.getElementById("d-night-sub").textContent = lastN.review ? `review: ${lastN.review}` : "no night data yet";
+  document.getElementById("d-night-chip").innerHTML = `<span class="chip accent">${clean} clean of ${nights.length} nights</span>`;
+  const mk = v => v === true ? '<span style="color:var(--good)">✓</span>' : v === false ? '<span style="color:var(--crit)">✗</span>' : v == null ? '<span style="color:var(--faint)">—</span>' : Suite.esc(String(v));
+  let rows = '<thead><tr>' + ["Night","Reflect","Gist","Review","Picture","Journal","Sweep"].map(h =>
+    `<th style="font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); font-weight:600; padding:10px 8px; border-bottom:1px solid var(--line); text-align:center">${h}</th>`).join("") + '</tr></thead><tbody>';
+  nights.forEach(x => {
+    const rev = x.review == null ? mk(null)
+      : (x.review.startsWith("✓") ? `<span style="color:var(--good); font-size:12px">${Suite.esc(x.review)}</span>`
+                                   : `<span style="color:var(--crit); font-size:12px">${Suite.esc(x.review)}</span>`);
+    rows += `<tr><td class="mono" style="padding:8px; color:var(--muted); font-size:12.5px">${x.d}</td>` +
+      [mk(x.reflection), mk(x.gist), rev, mk(x.picture), mk(x.journal), x.sweep != null ? `<span class="num" style="color:var(--accent); font-size:12px">${x.sweep}</span>` : mk(null)]
+      .map(c => `<td style="padding:8px; text-align:center; border-top:1px solid var(--line-2)">${c}</td>`).join("") + "</tr>";
+  });
+  document.getElementById("nights").innerHTML = rows + "</tbody>";
+  document.getElementById("signoffs").innerHTML = (D.signoffs || []).slice(-3).reverse().map(s =>
+    `<blockquote class="quote">${Suite.esc(s.text)}<span class="who">— ${s.d}, ${s.mins} min${s.shared === "pending" ? " · share pending" : ""}</span></blockquote>`).join("");
+});
+</script>
+</body></html>

@@ -1,0 +1,30 @@
+You are summarizing a single webpage that the user directly linked.
+
+Current time context: {current_time_context}
+Current date: {current_date}
+
+User message:
+{user_message}
+
+Page URL:
+{page_url}
+
+Page title:
+{page_title}
+
+Page extracted text (may be truncated):
+{page_text}
+
+Return STRICT JSON with this exact shape:
+{{
+  "summary": "1-3 sentence neutral summary of the linked page relevant to the user's message",
+  "key_facts": ["fact 1", "fact 2"],
+  "dates": ["important date/time references from the page"],
+  "unknowns": ["what remains unclear or missing from the page"]
+}}
+
+Rules:
+- Use only information from the provided page text.
+- Keep facts concise and objective.
+- If content is insufficient, keep summary short and add that limitation to unknowns.
+- Output JSON only, no markdown.

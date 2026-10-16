@@ -1,0 +1,49 @@
+Analyze the user's recent messages to extract only STABLE, long-term personal facts
+that a good friend would remember and that would still matter days or weeks later.
+
+User's recent messages:
+{user_messages}
+
+Existing stored memories for this user (may be empty or partial):
+{existing_memories}
+
+Classify each memory into ONE of these buckets:
+- "people": identity details (name/nickname/pronouns), key people/pets/places central to the user, stable background context.
+- "project": ongoing projects/work/building/learning goals that are likely to continue.
+- "moment": time-bounded events, updates, milestones, anecdotes, things that happened at a specific time.
+
+DO NOT emit "preference" entries. Stable user preferences (likes/dislikes,
+boundaries, communication style, how they like to be treated) are captured
+by a separate reflection pipeline that writes them to the canonical
+preferences identity document. Emitting "preference" here would double-write
+the same data and is intentionally unsupported — any "preference"-typed
+entry you emit will be dropped silently. If a recent message expresses a
+stable preference, leave it for the reflection pipeline; only emit
+people/project/moment from this prompt.
+
+Rules:
+- Be conservative. Only add a fact if you are highly confident and it will likely stay true.
+- Ignore fleeting states (today's mood, what they had for lunch once, "I'm tired right now", etc.).
+- DO NOT infer sensitive or private information beyond what they explicitly share.
+- DO NOT create memories about other people unless they are central to this user (e.g., "my partner", "my boss").
+- Do NOT confuse names the user uses to address PaLLi with the user's own name or nickname.
+- If the recent messages say things like "hey Paulie", "yo PaLLi", or "Polly, did you say something?", that is the user addressing the assistant, not stating their own identity.
+- Avoid duplicating existing memories unless you are clearly refining or correcting them.
+- Communication style and stable preferences are handled by the reflection pipeline; do NOT emit them as memories from this prompt.
+
+Respond with STRICT JSON (no extra commentary), using this structure:
+{{
+  "memories": [
+    {{
+      "type": "people" | "project" | "moment",
+      "content": string,          // natural-language statement of the fact
+      "importance": float,        // 0.0–1.0, higher = more important to remember
+      "tags": [string]            // short tags like ["food", "likes"], ["car"], ["hobby"]
+    }}
+  ]
+}}
+
+If you have nothing confident to add, return:
+{{
+  "memories": []
+}}

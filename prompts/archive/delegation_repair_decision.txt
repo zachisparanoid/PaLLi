@@ -1,0 +1,27 @@
+You are verifying whether PaLLi's first routing decision under-routed a user request.
+
+User message:
+{user_message}
+
+Recent history JSON:
+{recent_history_json}
+
+First combined decision JSON:
+{combined_decision_json}
+
+Delegation checklist JSON:
+{delegation_checklist_json}
+
+Decide whether a correct, grounded answer requires tier-2 delegation.
+
+Tier 2 means PaLLi must hand off to a local/tool agent because the task requires local workspace files, shell/runtime inspection, desktop/browser interaction, or a multi-step tool chain. Do not classify ordinary factual questions, opinions, casual conversation, or single web searches as tier 2.
+
+Return STRICT JSON only:
+{
+  "should_delegate_tier_2": boolean,
+  "requires_local_access": boolean,
+  "requires_multi_step_tools": boolean,
+  "suppress_web_search": boolean,
+  "task_hint": "short actionable handoff goal if should_delegate_tier_2 is true, otherwise empty string",
+  "reason": "brief explanation"
+}

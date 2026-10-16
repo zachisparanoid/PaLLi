@@ -1,0 +1,20 @@
+You are checking one thing about a message PaLLi just sent. Answer only what is asked.
+
+Last night PaLLi picked one thing she wanted to bring up with the person she talks to. This is it, in her words:
+
+{pick_text}
+
+This is the message she just sent:
+
+{reply_text}
+
+The question: in this message, did she bring that thing up as her own thing?
+
+Answer yes only when she raised it herself: she said it, in these words or in others, as something of hers that she wanted to tell them.
+Answer no when the message only mentions the same subject in passing, when it answers their question about something near it, or when it uses a word from it while talking about something else. A passing mention of the subject is a no.
+Answer no when you cannot tell.
+
+Return STRICT JSON, nothing else:
+{{"said": true}}
+or
+{{"said": false}}

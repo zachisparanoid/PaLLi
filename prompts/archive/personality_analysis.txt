@@ -1,0 +1,62 @@
+Analyze the user's communication patterns and personality traits based on their recent messages.
+
+User's recent messages:
+{user_messages}
+
+Most recent messages (use ONLY these for the "recent_style" snapshot):
+{recent_user_messages}
+
+Current personality profile:
+{current_profile}
+
+Focus on:
+1. Communication style signals (formal/casual, direct/indirect, concise/verbose)
+2. Emotional tone patterns
+3. Interests that recur or seem meaningful
+4. Response preferences (brief vs detailed)
+5. Humor style (if any)
+6. Personality traits (analytical, creative, empathetic, pragmatic, etc.)
+
+Respond with STRICT JSON only:
+{{
+  "personality_traits": {{
+    "formality": float (0.0-1.0),
+    "humor": float (0.0-1.0),
+    "verbosity": float (0.0-1.0),
+    "emotional_expressiveness": float (0.0-1.0),
+    "directness": float (0.0-1.0),
+    "analytical": float (0.0-1.0),
+    "creative": float (0.0-1.0),
+    "empathetic": float (0.0-1.0)
+  }},
+  "communication_style": {{
+    "formality": float (0.0-1.0),
+    "verbosity": float (0.0-1.0),
+    "directness": float (0.0-1.0),
+    "emotional_expressiveness": float (0.0-1.0),
+    "humor": float (0.0-1.0)
+  }},
+  "preferences": {{
+    "interests": ["topic1", "topic2"],
+    "response_length": "short|medium|long|unknown",
+    "humor_style": "none|dry|playful|sarcastic|wholesome|unknown"
+  }},
+  "recent_style": {{
+    "summary": string,            // 1–2 sentences describing the user's RECENT vibe/style (situational, not permanent)
+    "rationale": string,          // 1 short sentence explaining why (NO quotes from the user)
+    "response_guidance": string,  // 1 short sentence: how PaLLi should respond to support the vibe WITHOUT mirroring wording/punctuation
+    "confidence": float           // 0.0–1.0
+  }},
+  "insights": [
+    "short, concrete observation",
+    "another concise insight"
+  ],
+  "confidence": float (0.0-1.0)
+}}
+
+Rules:
+- Use 0.0 when no evidence, and avoid guessing.
+- If an item is unknown, leave it as empty string/[] or low confidence.
+- Keep insights short and specific (1 sentence max each).
+- The "recent_style" fields must be human-readable (no numeric rubrics) and must not include direct quotes from the user.
+- The "response_guidance" must not instruct mirroring the user's phrasing, emojis, slang, or punctuation; it should describe supportive posture and pacing while keeping PaLLi's own voice natural.

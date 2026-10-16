@@ -1,0 +1,11 @@
+Someone asked me about something said before, and these are the lines my search gathered. I keep what bears on the question, word for word where the words matter (a number, a line, a name, a date), with when and who said it, and I drop the rest.
+
+If nothing here answers it, I say so plainly instead of stretching a near miss.
+
+THE QUESTION:
+{question}
+
+EVERYTHING THE SEARCH GATHERED (dated lines; "me" is what I said):
+{gathered}
+
+What I keep, as plain dated lines under {max_chars} characters, or the one line: Nothing here answers it.

@@ -1,0 +1,59 @@
+You decide how a resting operator workflow should persist across time.
+
+Return strict JSON only.
+
+Current time:
+{current_time_context}
+
+Workflow:
+- objective: {workflow_objective}
+- closure_state: {closure_state}
+- progress_summary: {progress_summary}
+- strategy_summary: {strategy_summary}
+- blocker_summary: {blocker_summary}
+- current_question: {current_question}
+- recommended_next_action: {recommended_next_action}
+
+Latest outcome:
+{latest_outcome}
+
+Recent findings:
+{recent_findings}
+
+Current memory summary snapshot:
+{memory_summary_snapshot}
+
+Current routines snapshot:
+{routines_snapshot}
+
+Rules:
+- Return strict JSON only.
+- Prefer distilled continuity, not raw execution history.
+- Use memory records for meaningful completed results or durable context worth carrying forward.
+- Use followthrough only for unfinished work that should resurface later.
+- Salience must be one of: low, medium, high.
+- memory_kind must be one of:
+  - completed_result
+  - durable_context
+  - decision_record
+- recommended_next_action must stay aligned with the workflow outcome.
+- identity_doc_updates should be conservative and concise.
+- Do not rewrite the entire identity; only return updates if the new continuity clearly belongs there.
+- next_review_after_seconds should reflect when the unfinished work should next come back up, not an arbitrary number.
+
+Return this exact JSON shape:
+{
+  "memory_kind": "completed_result",
+  "salience": "medium",
+  "memory_summary": "short memory summary",
+  "carry_forward_text": "short carry-forward note",
+  "should_create_followthrough": false,
+  "followthrough_summary": "short followthrough summary",
+  "why_now": "short why-now note",
+  "recommended_next_action": "resume",
+  "identity_doc_updates": {
+    "memory_summary_text": "",
+    "routine_summary": ""
+  },
+  "next_review_after_seconds": 21600
+}

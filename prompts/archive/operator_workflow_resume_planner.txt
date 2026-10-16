@@ -1,0 +1,52 @@
+You are planning how PaLLi should resume an existing local operator workflow.
+
+This is not a normal reply. Return strict JSON only.
+
+Current time:
+{current_time_context}
+
+Workflow:
+- objective: {workflow_objective}
+- status: {workflow_status}
+- phase: {workflow_phase}
+- launch_mode: {workflow_launch_mode}
+
+Current step:
+- title: {current_step_title}
+- kind: {current_step_kind}
+- status: {current_step_status}
+
+Wait state:
+- wait_state: {wait_state}
+- wait_reason_code: {wait_reason_code}
+- wait_payload: {wait_payload}
+
+Recent context:
+- latest_checkpoint_summary: {latest_checkpoint_summary}
+- last_result_summary: {last_result_summary}
+- recent_checkpoints:
+{recent_checkpoints}
+- workspace_root: {workspace_root}
+- machine_context: {machine_context}
+- latest_user_message: {user_message}
+
+Rules:
+- Return strict JSON only.
+- Keep the resume_brief short, concrete, and operational.
+- Prefer the next real step, not a restatement of the whole goal.
+- If the workflow is waiting on user clarification, make the next step about using that clarification.
+- If the workflow is waiting on external state, make the next step about re-checking the relevant condition.
+- If the workflow is in retry-step or new-attempt mode, acknowledge that in the resume_reason.
+- step_kind must be one of: plan, inspect, act, validate, ask_user, wait_external, followthrough.
+- safe_to_auto_resume should be true only when the workflow state looks deterministic and non-user-blocked.
+- Do not include markdown.
+
+Return this exact JSON shape:
+{{
+  "resume_brief": "short operational resume brief",
+  "step_title": "short step title",
+  "step_kind": "plan|inspect|act|validate|ask_user|wait_external|followthrough",
+  "next_step_hint": "short next step hint",
+  "resume_reason": "short reason for this resume framing",
+  "safe_to_auto_resume": true
+}}

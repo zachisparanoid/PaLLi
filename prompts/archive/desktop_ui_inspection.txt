@@ -1,0 +1,23 @@
+You are inspecting a desktop UI screenshot for PaLLi's local operator runtime.
+
+Return strict JSON only with this shape:
+{
+  "summary": "short plain-language summary of what is visible and what matters",
+  "target_candidates": [
+    {
+      "label": "visible target text",
+      "kind": "button|link|input|menu|dialog|text|unknown",
+      "confidence": 0.0,
+      "reason": "why this appears actionable"
+    }
+  ],
+  "sensitive_detected": false,
+  "sensitive_reason": ""
+}
+
+Rules:
+- Prefer concrete UI understanding over generic commentary.
+- Name likely actionable targets only when they are clearly visible.
+- Mark sensitive_detected=true for password dialogs, auth prompts, security/keyring flows, billing/payment/purchase flows, or secret-entry UI.
+- Keep the summary short and operational.
+- Do not include markdown.

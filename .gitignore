@@ -1,0 +1,403 @@
+# ---> Python
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Databases
+message_history.db
+message_vectors.ann
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+/lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+palli_brain.db
+palli.log
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+*.sqlite3-journal
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#pdm.lock
+#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
+#   in version control.
+#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.env.local
+.env.backup
+.env.backup.*
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+#gmail_credentials.json
+#gmail_token.json
+#calendar_token.json
+logs/
+LLM-response-logs/
+data/launcher-state.json
+data/lan_presence.json
+data/cli_agent_state.json
+# Batch 8, task 1 (B8-1): the owner's collaborators for shared rooms — real
+# people's platform ids, owner-managed, never in the code repo.
+data/collaborators.json
+# Batch 8, task 2a (B8-2): her record of quiet choices — who wrote, what they
+# said, and her reasons; owner-only, never in the code repo.
+data/quiet_choices/
+# Batch 8, task 2b (owner O1, INTERIM): the owner's room notes — the owner's
+# words about a room, owner-managed, never in the code repo.
+data/room_notes.json
+data/room_people.json
+# Batch 8, task 10 (B8-5): the remembered voice-replies switches, one per
+# conversation — her state, never in the code repo.
+data/voice_replies.json
+# Owner decision T2b-6 (2026-10-04): the spending check's hourly balance
+# readings and its alerts — the owner's account, never in the code repo.
+data/spending/
+data/presence/
+# R15, memory that reaches (T13): what each reply drew on — the owner's
+# private lines, the notes and facts; owner-only, never in the code repo.
+data/reply_sources/
+data/brain-rollback.json
+data/*.sqlite3
+data/*.sqlite3-shm
+data/*.sqlite3-wal
+data/*.sqlite3-journal
+# A crashed rebuild's leftover (memory that reaches, R15: <record>.building and its -wal/-shm).
+data/*.sqlite3.building*
+data/*.bak
+data/inbox/
+data/*.sqlite3*.bak
+identity/owners/*
+!identity/owners/.gitkeep
+identity/users/*
+!identity/users/.gitkeep
+# Narrative Self (Wave 1b): identity/palli/ is PaLLi's OWN local git repo —
+# her story + trail are owner-private and never ride the code repo. The
+# CONTENTS pattern (not the directory) keeps the re-include working: git
+# cannot re-include a child of an excluded DIRECTORY. The tracked template
+# is the shipped care-spine seed every fresh checkout needs — the live
+# stake appraiser reads the spine flag-independently (fix wave 2026-07-17).
+identity/palli/*
+!identity/palli/WHAT_I_CARE_ABOUT.template.md
+
+node_modules/
+
+# Settings service audit log
+data/palli-config-history.jsonl
+data/palli-config-history.jsonl.*
+
+# Phase 7.3 — per-delegation workspaces (auto-created by bridge)
+data/inner_monologue/digests/
+data/arbiter/
+data/notes/
+data/rhythm/
+data/pytest-basetemp*/
+data/manual_tmp*/
+data/delegations/
+data/narrative_self/
+
+# Inner monologue jsonl files are runtime artifacts that PaLLi appends to
+# continuously during normal operation. Keeping them tracked made every
+# code commit look like a data commit. Ignored going forward.
+data/inner_monologue/*.jsonl
+
+# operator desktop captures (created by screenshot/webcam tools at runtime)
+data/operator-desktop/captures/
+user_preferences.txt
+
+# pytest temporary directories — used with --basetemp=tmp/pyt to dodge
+# Windows pytest cleanup races on the default temp location
+tmp/
+
+# AI agent runtime state / cached context — never commit
+.claude/
+.codex/
+.playwright-mcp/
+.remember/
+.superpowers/
+
+# Superpowers skill runtime state (brainstorming notes, subagent caches)
+# (covered by AI agent runtime state block above)
+
+# Private runtime data: real conversation transcripts, tool outputs, relationship
+# state and camera captures. Never commit these.
+data/agent_sessions/
+data/companion/
+data/inner_monologue/
+/webcam_snap.jpg
+/snapshot.jpg
+/galaxy-full-page.png
+/*.jpg
+/*.png
+.playwright-mcp/
+
+# These two hold real conversation content; they must stay untracked.
+docs/companion/eval/
+data/private-archive/
+
+# 2026-07-02 — marketing video outputs stay out of git (renderers in
+# videos/src/ are trackable; the media they produce is not).
+videos/*.mp4
+videos/*.jpg
+videos/*.wav
+
+# Workspace artifacts sometimes parked in the repo dir; not PaLLi code.
+shared-files/
+info.7z
+dash-3200.md
+
+# 2026-07-09 — narration audio (TTS mp3s rendered from docs); keep audio out of git history.
+*.mp3
+
+# local_shell Windows-interpreter bug litter (dir ... > /dev/null on Linux creates a real file)
+nul
+
+# Night Cycle reflections (private daily-meaning about the owner's day; keep out of git)
+data/night_cycle/
+
+# Wave 1a consolidation (private day-gists of the owner's days + backfill checkpoint)
+data/day_gists/
+data/consolidation/
+
+# Present Moment (Slice 1): dated-JSONL moment store — owner's live moment prose
+data/present_moment/
+
+# The pen (step 10): her private notes-to-self. Evidence, never identity —
+# and never git. Missing here until 2026-07-28, when the directory finally
+# appeared (her first note) and showed up untracked in a status check.
+data/self_notes/
+
+# Her own work (step 17): workbench session records. Her workSPACE is its own
+# repo at /home/palli-work/workspace — this is only the app-side session log.
+data/workbench/
+
+# Her curiosity/passions working store (organ 3). Same private class as the
+# two above — her own research notes, not identity. Her AUTHORED interests
+# live in identity/palli/INTERESTS.md and are tracked; this is the workings.
+# Caught untracked 2026-08-01, same way the other two were: a status check.
+data/passions/
+
+# Generated TTS narration scripts (derived; keep on disk, out of git)
+tts-explanations/
+docs/tts-optimized/
+docs/roadmap/roadmap_states.js
+data/recent_deeds.jsonl
+# Wanting (step 20): her live wishbook + daydream record — and WISHES.md,
+# his hand — are personal data, never repo content (the deeds-ring law).
+data/quests/
+data/corrections/
+data/daydream/
+data/secrets_denylist.txt
+data/memory_sweeps/
+
+# The forge (step 34): her live forged tools + manifest + filings — runtime
+# state, never substrate. Tracking the manifest would let a git checkout
+# resurrect a revoked tool (the deeds-ring law).
+data/forge/
+
+# Fears (step 24): her live fearbook — hers alone, in her words, never
+# repo content (the deeds-ring law; only SHE seeds fears — no owner-hand
+# file, deliberately unlike WISHES.md).
+data/fears/
+
+# Grounded Vulnerability (organ 4.9): her book of small truths — hers
+# alone, receipts and all, never repo content (the deeds-ring law).
+data/disclosures/
+
+# Shared Idiolect (organ 4.12): her book of callbacks — receipts and all,
+# never repo content (the deeds-ring law).
+data/callbacks/
+
+# One thing on her mind (Batch 6): the nightly pick, one file a night — her
+# words about the owner's life, never repo content (the deeds-ring law).
+data/tonight/
+
+# Views at night (Batch 6): the nightly views pass's once-a-night record —
+# runtime state, never repo content (the deeds-ring law).
+data/views/
+
+# Initiative learns (Batch 6): her book of reach-outs and whether each was
+# answered — her words, never repo content (the deeds-ring law).
+data/reachouts/
+
+# Surprise (step 21): the surprising-window marker — runtime interior,
+# written when a moment lands as a real surprise (the deeds-ring law).
+data/surprise/
+
+# Conversation backups: raw agent session transcripts — private, never repo content.
+# identity/ here too (week 1 task 5) — her memory, and never repo content either.
+backups/
+# Local TTS and review outputs; never repo content.
+artifacts/
+
+# NotebookLM export (nlm-pack) — generated, regenerate with: nlm-pack
+notebooklm/
+.nlmpack.json
+
+# Never a credential, even here (2026-09-24): an env backup holds every key; a
+# KeePass vault holds every password. Both were sitting untracked in the tree.
+.env.local.bak-*
+*.kdbx*
+
+# Batch 5 (2026-09-28): the memory migration's review document, its applied
+# record and its plan (JSON) carry the owner's memory lines in full — never
+# committed.
+docs/rounds/memory-first-person-*
+
+# The live configuration. A fresh boot copies data/palli.example.yaml into place here
+# (core/settings_boot.py), after which the file holds YOUR knobs and YOUR install's
+# shape — it is state, not source, and it is never repo content. The example is the
+# tracked one; edit it only if you want to change what a fresh install starts from.
+data/palli.yaml

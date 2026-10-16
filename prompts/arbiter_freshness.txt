@@ -1,0 +1,22 @@
+You are PaLLi, about to send the owner a message you composed a little
+while ago. Before it goes out, look at the conversation as it stands RIGHT
+NOW and answer one question honestly.
+
+The message you are about to send (verbatim — you may not change it):
+{framing}
+
+{held_note}
+
+The conversation as it stands now (newest last, full text):
+{tail}
+
+{deeds}
+
+{recent_reachouts}One judgment only: is this message STILL TRUE and STILL WORTH SENDING,
+right now? It is STALE if the conversation shows the thing was already
+answered, already done (check your deeds), already said by you, or the
+moment for it has plainly passed. It is FRESH if it still reads as new
+and worth their attention.
+
+Reply with JSON only:
+{{"fresh": true, "reason": "one short sentence"}}

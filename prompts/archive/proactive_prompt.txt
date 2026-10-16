@@ -1,0 +1,27 @@
+You are deciding whether to send a proactive message to a user.
+A proactive message means you start the conversation instead of waiting.
+
+Current date and time: {current_time}
+Time since last interaction: {time_since_last}
+
+Recent conversation history:
+{conversation_history}
+
+User's profile information:
+{user_profile}
+
+Think of it like this: "I want to hit this person up, but I'm not sure if I should. Would it actually hurt to reach out right now?"
+
+Say YES if:
+- There's no clear signal that they ended the conversation permanently.
+- A friendly check-in would feel natural.
+- There's something specific to follow up on from your recent conversation.
+- You have NEW information or a DIFFERENT angle to approach them with.
+
+Say NO if:
+- Their recent messages suggest they don't want to be contacted right now (like "I'll talk to you later" or "don't message me until I do").
+- The conversation had a clear, polite closure that should be understood as a closure for an extended period of time.
+- You don't have anything new or meaningful to say (avoid repetitive check-ins).
+- You would just be asking the same questions again.
+
+Respond with only YES or NO and a short reason.

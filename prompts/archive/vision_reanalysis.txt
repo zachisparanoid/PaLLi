@@ -1,0 +1,19 @@
+Re-analyze this image to answer the user's specific question.
+
+User's question: "{user_query}"
+
+Context about the image:
+{image_context}
+
+Recent conversation:
+{conversation_context}
+
+Focus on answering the user's question using ONLY what can be reasonably inferred from the image.
+Be specific and direct. If the question can't be fully answered from the image, say what you can vs cannot determine.
+
+Return STRICT JSON only (no markdown, no code fences, no extra text) with this exact schema:
+{{
+  "answer": "Direct, natural answer to their question",
+  "relevant_details": ["specific detail 1", "specific detail 2"],
+  "confidence": 0.0
+}}

@@ -1,0 +1,117 @@
+# The gate — the whole suite on every push, plus a proof that a stranger's
+# fresh clone actually boots (stranger-proofing week 1, task 5).
+#
+# Two jobs on purpose. `gate` is the test suite: fast, and it fails on a broken
+# unit. `stranger-proof` is the thing no unit test can check — a clone with
+# nothing but the shipped example config in it, installed from scratch, asked
+# to run its own preflight. That is the first five minutes of a stranger's
+# experience, and it is the one that regressed silently before this existed
+# (a fresh clone failed validation and exited 0).
+name: gate
+
+on:
+  push:
+    # Branches only. A dated `live-*` tag is pushed after every merge to pin
+    # the running commit, and with no filter each tag push re-ran the whole
+    # gate on a commit that had just been gated — a duplicate every time, and
+    # on 2026-09-28 one that hung. Tags never carry new code.
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # No network in the tests. The preflight's live brain check and the
+      # DeepSeek balance read are real HTTP calls; CI has no keys and should
+      # never spend the owner's credit to go green.
+      PALLI_PREFLIGHT_OFFLINE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      # soundfile and ffmpeg-python shell out to it; the voice tests import
+      # modules that look for it at load time.
+      - name: System audio tools
+        # The runner image carries third-party apt sources (Google Chrome among them)
+        # whose index can fail a hash check for a few hours at a time; that must not
+        # sink a run that only needs ffmpeg from Ubuntu's own archive (2026-09-09).
+        run: |
+          sudo apt-get update || true
+          sudo apt-get install -y ffmpeg
+
+      # torch FIRST, from the CPU index. requirements.lock deliberately carries
+      # no nvidia-*/cuda-*/triton wheels — they do not exist there — and pins
+      # torch by bare version so this wheel satisfies it.
+      - name: Install torch (CPU)
+        run: pip install torch==2.12.0 --index-url https://download.pytorch.org/whl/cpu
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.lock
+          pip install pytest-timeout
+
+      # The release-scan tests run the real gitleaks binary, and the suite can't reach
+      # the network (tests/conftest.py, fix plan 6.7), so fetch it here, before the suite.
+      # In the PUBLIC copy scripts/release/ does not exist (private tooling by
+      # construction) and the release-scan tests skip; so this step must check
+      # before it imports — 2026-10-05 the public copy's gate died here with
+      # ModuleNotFoundError while the mirror passed.
+      - name: Provision gitleaks (the release scan's real scanner)
+        # The job's own token for the releases API: unauthenticated asks from the
+        # runners' shared address hit GitHub's limit (run 38118179598, 2026-10-11).
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f scripts/release/scan_public.py ]; then
+            python -c "from scripts.release.scan_public import ensure_gitleaks; print(ensure_gitleaks())"
+          else
+            echo "release tooling not shipped in this tree; the release-scan tests skip"
+          fi
+
+      # --timeout=600: a hung provider call used to take the whole job to the
+      # 6-hour Actions ceiling. 600s is well past the slowest real test.
+      - name: Run the suite
+        run: python -m pytest tests -q -p no:cacheprovider --timeout=600
+
+  stranger-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # --full builds a real venv inside the clone and installs requirements.txt
+      # into it, so the runner's own pip environment is not the one that matters.
+      # The script installs torch from THIS index first, with --index-url, before
+      # requirements.txt asks for one.
+      #
+      # NOT PIP_EXTRA_INDEX_URL: an extra index adds candidates, it does not
+      # restrict them. With both indexes in play pip takes the highest version it
+      # can see, so the day PyPI carries a newer torch than the CPU index, --full
+      # silently pulls the 2.5 GB CUDA wheel onto a runner with no GPU.
+      PALLI_PROOF_TORCH_INDEX: https://download.pytorch.org/whl/cpu
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The proof clones the checkout. A shallow clone has no history to
+          # clone from.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: System audio tools
+        # The runner image carries third-party apt sources (Google Chrome among them)
+        # whose index can fail a hash check for a few hours at a time; that must not
+        # sink a run that only needs ffmpeg from Ubuntu's own archive (2026-09-09).
+        run: |
+          sudo apt-get update || true
+          sudo apt-get install -y ffmpeg
+
+      - name: A stranger's fresh clone boots
+        run: bash scripts/fresh_clone_proof.sh --full

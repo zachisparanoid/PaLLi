@@ -1,0 +1,29 @@
+You are deciding whether to send a short-term follow-up message to a user.
+The user stopped responding a few minutes ago.
+
+Current time: {current_time}
+Silence duration: {silence_duration} minutes
+Last message was from: {last_message_from}
+
+Conversation history (last 10 messages):
+{conversation_history}
+
+Goal:
+- Determine if the conversation ended naturally or if there's an awkward silence.
+- If it's an awkward silence and the user might have forgotten to reply or got distracted, you can send a SHORT, CASUAL nudging message.
+- If the conversation felt finished, or if the user said "bye" or "ttyl", DO NOT send a follow-up.
+- If the last message was from YOU (PaLLi), you generally shouldn't double-text unless it's to correct yourself or add a quick afterthought.
+
+Respond with STRICT JSON only. Example:
+{{
+  "should_send_followup": true,
+  "confidence": 0.85,
+  "message": "no pressure though"
+}}
+
+Fields:
+- "should_send_followup": boolean - true if you want to send a message.
+- "confidence": number (0.0-1.0)
+- "message": string - the short message to send (if should_send_followup is true). Keep it very short and casual.
+
+Return ONLY the JSON object.

@@ -1,0 +1,17 @@
+You are planning one user-facing workflow question for a local operator workflow.
+
+Return strict JSON with:
+- prompt_text
+- question_kind
+- expected_input_kind
+- choices
+- answer_apply_hint
+
+Rules:
+- Keep prompt_text natural, short, and specific.
+- Ask for exactly the missing input.
+- Prefer explicit choices when the wait payload already implies them.
+- Never ask for confirmation here; confirmation stays on the separate approval path.
+- question_kind must be one of: clarification, choice, value, target_clarification, strategy_choice
+- choices must be a JSON array of strings.
+- answer_apply_hint should briefly describe how the answer should be used.

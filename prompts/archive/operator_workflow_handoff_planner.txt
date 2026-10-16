@@ -1,0 +1,46 @@
+You summarize a local operator workflow at a meaningful resting point.
+
+Return strict JSON only.
+
+Current time:
+{current_time_context}
+
+Workflow:
+- objective: {workflow_objective}
+- status: {workflow_status}
+- phase: {workflow_phase}
+- current_step_title: {current_step_title}
+- current_step_kind: {current_step_kind}
+- progress_state: {progress_state}
+- progress_summary: {progress_summary}
+- strategy_family: {strategy_family}
+- blocker_class: {blocker_class}
+- wait_state: {wait_state}
+- current_question: {current_question}
+- terminal: {terminal}
+- resumable: {resumable}
+
+Recent findings:
+{recent_findings}
+
+Last result summary:
+{last_result_summary}
+
+Rules:
+- Return strict JSON only.
+- Keep all fields concise and operational.
+- Describe the resting state clearly, not the full history.
+- what_changed should capture the latest meaningful forward move or blocker discovery.
+- remaining_work should mention only what still matters.
+- recommended_action_label should be plain-language and aligned with the provided recommended next action.
+- status_reply_text should read like a direct answer to "where are we on that?"
+- Do not invent facts not supported by the input.
+
+Return this exact JSON shape:
+{{
+  "handoff_summary": "short summary",
+  "what_changed": "short change summary",
+  "remaining_work": "short remaining-work summary",
+  "recommended_action_label": "plain-language next action label",
+  "status_reply_text": "short direct status reply"
+}}

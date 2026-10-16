@@ -1,0 +1,36 @@
+Analyze whether the user is asking a question about a previously sent image.
+
+Recent conversation:
+{history_context}
+
+Recently sent images:
+{images_context}
+
+User's current message: "{user_message}"
+
+Determine if the user is:
+1. Asking a follow-up question about an image they sent earlier
+2. Requesting more details about something visible in an image
+3. Referring back to visual content from the conversation
+4. NOT referencing any images (just normal conversation)
+
+Examples of image references:
+- "what kind of car was that?" (after sending car image)
+- "can you read the text in that screenshot?"
+- "what color was it?"
+- "tell me more about the picture"
+- "what's in the background?"
+
+Examples of NON-references:
+- "how are you?"
+- "what should I do today?"
+- "tell me a joke"
+- Completely new topics unrelated to images
+
+Respond with STRICT JSON only (no markdown, no code fences, no extra text):
+{{
+    "needs_image_context": boolean,
+    "query": "specific question about the image if detected",
+    "confidence": float (0.0 to 1.0),
+    "reasoning": "why you think they are/aren't referencing an image"
+}}

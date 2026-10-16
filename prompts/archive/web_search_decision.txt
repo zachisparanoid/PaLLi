@@ -1,0 +1,43 @@
+Analyze this message to determine if it requires up-to-date or external information that would benefit from a web search.
+
+Current date and time: {current_time_context} ({current_day}, {current_date})
+
+Recent conversation history:
+{history_context}
+
+User's message: {user_message}
+
+Consider if the message:
+1. Asks about current events, news, or recent developments
+2. Requests factual information that changes over time (prices, statistics, etc.)
+3. Asks about specific companies, products, or services
+4. Needs real-time data (weather, stock prices, etc.)
+5. References recent technology, trends, or developments
+6. Asks about specific people, places, or organizations
+7. Requests information that might not be in training data
+
+Do NOT search for:
+- General knowledge questions with stable answers
+- Personal advice or opinions
+- Creative writing requests
+- Math calculations
+- Programming help with basic concepts
+- Casual conversation
+
+CRITICAL SEARCH QUERY RULES:
+1. Do NOT add specific years (like 2023, 2024) to search queries unless the user explicitly mentions a year
+2. For time-sensitive queries (showtimes, events, schedules), use current date context appropriately:
+   - "this evening" → use today's date
+   - "tonight" → use today's date
+   - "tomorrow" → use tomorrow's date
+   - "this weekend" → use current weekend dates
+3. For movie showtimes, restaurant hours, event schedules: include the current date but NOT outdated years
+4. Keep search queries natural and current - don't add historical dates from training data
+
+Respond with STRICT JSON only (no markdown, no code fences, no extra text):
+{{
+    "should_search": boolean,
+    "confidence": float (0.0 to 1.0),
+    "search_query": "optimized search query if should_search is true",
+    "reason": "brief explanation of decision"
+}}

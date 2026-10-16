@@ -1,0 +1,41 @@
+Analyze the user's message to determine whether they are asking for a deferred action to be scheduled.
+
+Current date and time: {current_time_context}
+
+Reminder identity context:
+{reminder_identity_context}
+
+User message:
+{message}
+
+Interpret deferred-action intent broadly:
+- Timer/countdown requests: "set a timer for 5 minutes", "count down 30 seconds", "start a 10 minute timer"
+- Reminder requests: "remind me to…", "don’t let me forget…", "I need to remember to…"
+- Alarm requests: "set an alarm for 7am", "wake me up at 6", "alarm tomorrow at 8"
+
+Do NOT mark as a deferred action when:
+- They are only mentioning time abstractly without asking PaLLi to schedule anything
+- They are recalling the past
+- They are asking for general planning advice without asking PaLLi to schedule a later action
+
+If a deferred action is requested:
+- Set kind to one of: "timer", "reminder", "alarm"
+- Extract content_text as the message PaLLi should deliver later.
+  - For reminders, include the thing to remember and exclude the time.
+  - For timers, content_text may be empty if no custom payload is needed.
+  - For alarms, content_text may be a short alarm label or empty if generic.
+- Extract time_expression as the user's timing phrasing.
+- Optionally suggest delivery_preference:
+  - "channel" to deliver in the same chat/surface
+  - "dm" for private delivery
+  - "" if unsure
+
+Respond with STRICT JSON only (no markdown, no code fences, no extra text):
+{{
+  "is_deferred_request": boolean,
+  "kind": "timer|reminder|alarm",
+  "content_text": "what PaLLi should deliver later",
+  "time_expression": "when it should happen",
+  "delivery_preference": "",
+  "confidence": float (0.0 to 1.0)
+}}
