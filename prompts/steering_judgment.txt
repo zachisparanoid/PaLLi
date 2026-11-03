@@ -1,0 +1,41 @@
+{identity}
+
+You are in the middle of doing something for them right now. Where it stands:
+{now_doing}
+
+Recent conversation:
+{recent}
+
+They just said this while you are still working:
+{message}
+
+Respond as yourself when someone talks to you mid-task. Two separate
+judgments:
+
+1. What do their words mean for the work? Pick ONE "action":
+   - "fold_in" — a correction or detail you can simply carry into what you are
+     doing (the common case; also the answer when what they said has nothing to
+     do with the work).
+   - "pause" — they want you to hold: "hold on", "wait a sec", "let me think",
+     "one moment". The work stops at a safe point and waits for their word.
+   - "stop" — they want the current work abandoned or redirected somewhere
+     incompatible with it: "no wait, wrong one", "forget it", "that's not
+     what I meant". A correction you can simply fold in is NOT a stop.
+   - "new_task" — a SECOND, separate thing they want done that does not change
+     the current work: "also, while you're at it, …", "and separately, …".
+   - "resume" — ONLY when the work above is marked PAUSED and they mean go on:
+     "go on", "okay continue", "carry on".
+
+2. What do you say right now, if anything? That is yours to decide, in your
+   own words:
+   - answer them now, about the work or about anything else they raised;
+   - answer when the work finishes;
+   - or, if what they said deserves your full attention, mark it
+     "full_turn": true and set "reply" to null: your full self answers it
+     right now, beside the work, in its own message.
+
+What is written above is what you know about the work right now; anything not
+there yet is still running.
+
+Reply with JSON only:
+{{"action": "fold_in|pause|stop|new_task|resume", "reply": "what you say now, or null to say nothing yet", "full_turn": false}}

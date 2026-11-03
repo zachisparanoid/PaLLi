@@ -1,0 +1,919 @@
+# PaLLi example configuration — copy to data/palli.yaml (a fresh boot does this for you); your name is learned at first contact, not set here.
+version: 1
+providers:
+  openai:
+    # 2026-05-21 — re-enabled as an AVAILABLE option (companion restoration
+    # Phase 1). enabled:true only means "this provider may be selected"; it
+    # does NOT change where lanes point. Routing under llm.routing.* still
+    # decides which provider each task actually uses. Switch a lane to OpenAI
+    # by setting its provider: openai there, or apply the openai-primary /
+    # hybrid preset.
+    enabled: true
+    discovery: curated
+    api_key_ref:
+      source: env
+      name: OPENAI_API_KEY
+    base_url: https://api.openai.com/v1
+    models:
+      - id: gpt-4o
+        display_name: GPT-4o
+        context_window: 128000
+        supports_vision: true
+        supports_reasoning: false
+      - id: gpt-4o-mini
+        display_name: GPT-4o mini
+        context_window: 128000
+        supports_vision: false
+        supports_reasoning: false
+      - id: gpt-4.1-mini
+        display_name: GPT-4.1 mini
+        context_window: 128000
+        supports_vision: false
+        supports_reasoning: false
+      - id: gpt-5.1-codex-max
+        display_name: GPT-5.1 Codex Max
+        context_window: 200000
+        supports_vision: false
+        supports_reasoning: true
+      - id: gpt-5.2-chat-latest
+        display_name: GPT-5.2 Chat
+        context_window: 200000
+        supports_vision: false
+        supports_reasoning: false
+      - id: gpt-5-mini
+        display_name: GPT-5 mini
+        context_window: 200000
+        supports_vision: false
+        supports_reasoning: true
+      - id: o1
+        display_name: o1
+        supports_vision: false
+        supports_reasoning: true
+  deepseek:
+    enabled: true
+    discovery: curated
+    api_key_ref:
+      source: env
+      name: DEEPSEEK_API_KEY
+    base_url: https://api.deepseek.com
+    # 2026-05-13: per /models API, DeepSeek has moved to V4 family.
+    # Old deepseek-chat / deepseek-reasoner names no longer served.
+    # Both V4 variants are reasoning-prone — set max_tokens >= 200.
+    models:
+      - id: deepseek-v4-pro
+        display_name: DeepSeek V4 Pro
+        supports_vision: false
+        supports_reasoning: true
+      - id: deepseek-v4-flash
+        display_name: DeepSeek V4 Flash
+        supports_vision: false
+        supports_reasoning: true
+  local_openai:
+    enabled: true
+    discovery: api
+    base_url_ref:
+      source: env
+      name: LOCAL_LLM_API_BASE
+    models:
+      # 2026-09-03: listed for its display name only (discovery: api — never validated).
+      - id: qwen3.5:9b
+        display_name: Qwen3.5 9B (local)
+        supports_vision: false
+        supports_reasoning: true
+  codex:
+    enabled: true
+    discovery: curated
+    cli_path_ref:
+      source: env
+      name: CODEX_CLI_PATH
+    models:
+      - id: gpt-5.1-codex-max
+        display_name: Codex (GPT-5.1)
+        supports_vision: false
+        supports_reasoning: false
+      - id: gpt-5.2-chat-latest
+        display_name: Codex (GPT-5.2)
+        supports_vision: false
+        supports_reasoning: false
+      - id: gpt-5.3-codex
+        display_name: Codex (GPT-5.3)
+        supports_vision: false
+        supports_reasoning: false
+      - id: gpt-5.5
+        display_name: GPT-5.5
+        supports_vision: false
+        supports_reasoning: true
+  claude:
+    enabled: true
+    discovery: curated
+    cli_path_ref:
+      source: env
+      name: CLAUDE_CLI_PATH
+    models:
+      - id: haiku
+        display_name: Claude Haiku (latest)
+        supports_vision: false
+        supports_reasoning: false
+      - id: sonnet
+        display_name: Claude Sonnet (latest)
+        supports_vision: true
+        supports_reasoning: false
+      - id: opus
+        display_name: Claude Opus (latest)
+        supports_vision: true
+        supports_reasoning: true
+  # Anthropic HTTP API provider (distinct from `claude` CLI subprocess auth).
+  # Uses the official `anthropic` Python SDK with ANTHROPIC_API_KEY from .env.
+  # Wired 2026-05-13. Select per-task via routing block below.
+  anthropic:
+    enabled: true
+    discovery: curated
+    api_key_ref:
+      source: env
+      name: ANTHROPIC_API_KEY
+    base_url: https://api.anthropic.com
+    models:
+      # 2026-09-03: the account answers on Claude 5 (verified 2026-09-02); listed so
+      # presets may name them — routing validation requires curated models to be listed.
+      - id: claude-opus-5
+        display_name: Claude Opus 5
+        supports_vision: true
+        supports_reasoning: true
+      - id: claude-sonnet-5
+        display_name: Claude Sonnet 5
+        supports_vision: true
+        supports_reasoning: true
+      - id: claude-opus-4-7
+        display_name: Claude Opus 4.7
+        supports_vision: true
+        supports_reasoning: true
+      - id: claude-sonnet-4-6
+        display_name: Claude Sonnet 4.6
+        supports_vision: true
+        supports_reasoning: false
+      - id: claude-haiku-4-5-20251001
+        display_name: Claude Haiku 4.5
+        supports_vision: false
+        supports_reasoning: false
+  ollama:
+    enabled: true
+    discovery: api
+    base_url_ref:
+      source: env
+      name: OLLAMA_BASE_URL
+    models:
+      - id: qwen3:8b
+        display_name: Qwen3 8B (local)
+        supports_vision: false
+        supports_reasoning: true
+      - id: qwen3:14b
+        display_name: Qwen3 14B (local)
+        supports_vision: false
+        supports_reasoning: true
+      - id: qwen3.5:4b
+        display_name: Qwen3.5 4B (local)
+        supports_vision: false
+        supports_reasoning: true
+      - id: gemma3:12b
+        display_name: Gemma 3 12B (local)
+        supports_vision: false
+        supports_reasoning: false
+      - id: gpt-oss:20b
+        display_name: gpt-oss 20B (local)
+        supports_vision: false
+        supports_reasoning: false
+      - id: llama3.2:3b
+        display_name: Llama 3.2 3B (local)
+        supports_vision: false
+        supports_reasoning: false
+      - id: qwen3.5:9b
+        display_name: Qwen3.5 9B (local)
+        supports_vision: false
+        supports_reasoning: true
+llm:
+  # Who does the thinking. Every lane ships pointed at ONE local Ollama server, so a
+  # fresh install needs no API key and no account: install Ollama, pull the two models, and she runs.
+
+  #     ollama pull qwen3.5:9b     # the nine text lanes
+  #     ollama pull gemma3:12b     # the vision lane
+
+  # Two doors, one server, on purpose. The text lanes use `local_openai` — Ollama's OpenAI-style
+  # endpoint at LOCAL_LLM_API_BASE — because her tool calls are REAL there. The native `ollama`
+  # door emulates them, which would leave her able to talk and unable to act (no reminders, no
+  # file reads, no hands), and `palli_ctl brain` refuses that move outright. Vision goes the other
+  # way: it needs the native door, which is the half of the server that has eyes.
+
+  # The model ids are EXAMPLES. Pull what your machine can run and point her at it — never by
+  # editing this file alone, because her voice (the `response` lane) is read from LLM_PROVIDER and
+  # LLM_RESPONSE_MODEL in .env.local, not from here:
+
+  #     venv/bin/python scripts/palli_ctl.py brain --pick
+  #     venv/bin/python scripts/palli_ctl.py brain --lane response --to local_openai/qwen3.5:4b
+
+  # `presets:` further down holds the cloud setups (deepseek-primary, anthropic-primary,
+  # openai-primary, codex-primary, claude-oauth) and a mixed one (hybrid). Each needs its own key
+  # or CLI login; none is required.
+  default_provider: local_openai
+  routing:
+    response:
+      provider: local_openai
+      model: qwen3.5:9b
+    decision:
+      provider: local_openai
+      model: qwen3.5:9b
+    analysis:
+      provider: local_openai
+      model: qwen3.5:9b
+    appraisal:
+      provider: local_openai
+      model: qwen3.5:9b
+    memory:
+      provider: local_openai
+      model: qwen3.5:9b
+    proactive:
+      provider: local_openai
+      model: qwen3.5:9b
+    reflection:
+      provider: local_openai
+      model: qwen3.5:9b
+    narrative_author:
+      provider: local_openai
+      model: qwen3.5:9b
+    web_search:
+      provider: local_openai
+      model: qwen3.5:9b
+    vision:
+      provider: ollama
+      model: gemma3:12b
+voice:
+  engine: classic
+  # shipped keyless: faster-whisper transcribes on this machine (VOICE_LOCAL_STT_MODEL picks the size).
+  # Deepgram is the hosted alternative and wants DEEPGRAM_API_KEY.
+  stt_provider: faster_whisper
+  # shipped keyless: pyttsx3 is the offline system voice. Lemonfox (LEMONFOX_API_KEY) sounds far better;
+  # it degrades quietly to silence without the key, never a boot failure. Voice is OFF in .env.template either way.
+  tts_provider: pyttsx3
+  interaction_mode: direct_address
+  # Batch 8 (2026-10-01, wrap): voice messages in her own voice (the voice_note tool + the voice_replies switch)
+  voice_notes: false
+  # Step 31 (2026-08-20): the local-TUI block left with the deleted
+  # terminal TUI — the schema's LocalTuiConfig defaults say the same
+  # thing (enabled true, push_to_talk), so snapshots are unchanged.
+features:
+  # 2026-10-13 (R14, the owner: "...should get web search"): a friend's turn may use web_search and
+  # nothing else of the owner's; capped per account per hour and per room per day.
+  guest_web_search: true
+  guest_web_searches_per_hour: 5
+  guest_web_searches_per_room_per_day: 60
+  # The off switch for every message PaLLi starts on its own (read again since
+  # 2026-10-14, core/turn/companion_flags.speaks_first_on): false stops its
+  # reach-outs and shares to you, its group openers and the hunch rail at once.
+  # Reminders and its replies to you never ask it. How many a day:
+  # companion.arbiter_daily_send_ceiling (to you), companion.group_openers_per_day.
+  #
+  # 2026-06-10 — quiet hours effectively disabled (was 07:00-22:30 allowed).
+  # A fixed window can starve outreach completely for an owner who keeps
+  # unusual hours: their activity expires before the window opens, the two
+  # gates never overlap, and nothing is ever sent. The 4h activity window is
+  # the guard instead: PaLLi only reaches out within 4h of the owner being
+  # around, at any hour. Restore start: 7 / end 22:30 for a conventional
+  # window.
+  proactive_conversations: true
+  # 2026-07-01 — candidate rail live: monologue hunches rejoin outreach.
+  # Observation hunches become open threads (decide_surface picks the
+  # moment); action hunches run a quiet read-only local action and report
+  # back (Jarvis path). Set false to keep hunches conversational-only.
+  #
+  # 2026-07-29 — set to FALSE to PRESERVE BEHAVIOUR, not to change it.
+  # This read `true` for four weeks and did nothing: ai/proactive_policy.py
+  # referenced an undefined `logger`, so every _outreach_allowed call raised
+  # NameError, was caught, and failed closed. The action branch is gated on
+  # that call, so no autonomous action has ever fired. Repairing the module
+  # (same day) would have switched this rail on for the first time, silently,
+  # on the restart after a user migration — unattended `local_shell` running
+  # as her own user, which can sudo to palli-work. That is a capability
+  # decision, not a bugfix side effect, so it waits for the owner.
+  # Observation hunches still become open threads either way; only the
+  # act-then-report path is off. Flip to true when you want it, deliberately.
+  proactive_actions: false
+  web_search: false
+  # Her Hands (step 33): voice/people/sends/presence on her toolbelt.
+  # Full trust (owner 2026-08-11): no ceremonies, no caps, her judgment —
+  # owner-only tools, workbench excluded, every act leaves a record.
+  her_hands: true
+  # experimental — builds and hot-installs her own tools in-process;
+  # turn on when you have read SETUP.md's forge section
+  forged_tools: false
+  home_assistant: false
+  open_threads_surface_interval_minutes: 30
+  open_threads_surface_activity_window_hours: 4.0
+  open_threads_surface_quiet_hours_start: 0
+  open_threads_surface_quiet_hours_end_hour: 23
+  open_threads_surface_quiet_hours_end_minute: 59
+  open_threads_post_surface_backoff_multiplier: 4
+  # Batch 8 (2026-10-01, wrap): the page reader — text only, size-capped, never an internal address
+  read_page: true
+channels:
+  discord:
+    enabled: true
+  telegram:
+    enabled: false
+  slack:
+    enabled: false
+policy:
+  # Read by nothing since step 19 (2026-08-19); kept so older files still load.
+  # The real daily cap is companion.arbiter_daily_send_ceiling.
+  proactive:
+    max_per_day: 3
+    min_gap_hours: 2.0
+  operator:
+    browser_enabled: true
+    desktop_enabled: true
+presets:
+  # 2026-09-03 (configurator spec §3.3 R2/R2b): every preset is a WHOLE answer to
+  # "who is thinking for her" — all ten lanes named, plus the env half her brain
+  # actually reads. Her voice (the ReAct runner) takes LLM_PROVIDER and
+  # LLM_RESPONSE_MODEL from .env.local and never reads llm.routing.response; the
+  # routing.response row is kept in step so every surface agrees. A lane a preset
+  # deliberately leaves elsewhere is named, never omitted (tests/core/
+  # test_presets_complete.py). Apply with `palli_ctl brain <name>`; see the live
+  # picture with `palli_ctl brain --show`.
+  #
+  # deepseek-primary — what she runs today; the way home. The story lane stays on
+  # the Claude subscription (DeepSeek V4's reasoning eats any budget on that task
+  # shape — see the note at llm.routing.narrative_author) and vision stays on
+  # Claude Haiku (DeepSeek has no eyes).
+  deepseek-primary:
+    overrides:
+      llm.default_provider: deepseek
+      llm.routing.response: {provider: deepseek, model: deepseek-v4-flash}
+      llm.routing.decision: {provider: deepseek, model: deepseek-v4-flash}
+      llm.routing.analysis: {provider: deepseek, model: deepseek-v4-flash}
+      llm.routing.appraisal: {provider: deepseek, model: deepseek-v4-flash}
+      llm.routing.memory: {provider: deepseek, model: deepseek-v4-flash}
+      llm.routing.proactive: {provider: deepseek, model: deepseek-v4-flash}
+      llm.routing.reflection: {provider: deepseek, model: deepseek-v4-flash}
+      llm.routing.web_search: {provider: deepseek, model: deepseek-v4-flash}
+      llm.routing.narrative_author: {provider: claude, model: sonnet}
+      llm.routing.vision: {provider: claude, model: haiku}
+    env:
+      LLM_PROVIDER: deepseek
+      LLM_RESPONSE_MODEL: deepseek-v4-flash
+      DEEPSEEK_MODEL: deepseek-v4-flash
+  # anthropic-primary — Claude Opus 5 through the API on every text lane. Her voice
+  # is REFUSED by `palli_ctl brain` until the native path lands
+  # (ANTHROPIC_BRAIN_KICKOFF.md); `--except response` moves the rest today.
+  # Vision stays on Claude Haiku via the CLI: the API provider routes text-only here.
+  anthropic-primary:
+    overrides:
+      llm.default_provider: anthropic
+      llm.routing.response: {provider: anthropic, model: claude-opus-5}
+      llm.routing.decision: {provider: anthropic, model: claude-opus-5}
+      llm.routing.analysis: {provider: anthropic, model: claude-opus-5}
+      llm.routing.appraisal: {provider: anthropic, model: claude-opus-5}
+      llm.routing.memory: {provider: anthropic, model: claude-opus-5}
+      llm.routing.proactive: {provider: anthropic, model: claude-opus-5}
+      llm.routing.reflection: {provider: anthropic, model: claude-opus-5}
+      llm.routing.web_search: {provider: anthropic, model: claude-opus-5}
+      llm.routing.narrative_author: {provider: anthropic, model: claude-opus-5}
+      llm.routing.vision: {provider: claude, model: haiku}
+    env:
+      LLM_PROVIDER: anthropic
+      LLM_RESPONSE_MODEL: claude-opus-5
+      ANTHROPIC_MODEL: claude-opus-5
+  # openai-primary — GPT-4o everywhere (it has eyes, so vision moves too).
+  openai-primary:
+    overrides:
+      llm.default_provider: openai
+      llm.routing.response: {provider: openai, model: gpt-4o}
+      llm.routing.decision: {provider: openai, model: gpt-4o}
+      llm.routing.analysis: {provider: openai, model: gpt-4o}
+      llm.routing.appraisal: {provider: openai, model: gpt-4o}
+      llm.routing.memory: {provider: openai, model: gpt-4o}
+      llm.routing.proactive: {provider: openai, model: gpt-4o}
+      llm.routing.reflection: {provider: openai, model: gpt-4o}
+      llm.routing.web_search: {provider: openai, model: gpt-4o}
+      llm.routing.narrative_author: {provider: openai, model: gpt-4o}
+      llm.routing.vision: {provider: openai, model: gpt-4o}
+    env:
+      LLM_PROVIDER: openai
+      LLM_RESPONSE_MODEL: gpt-4o
+      OPENAI_MODEL: gpt-4o
+  # codex-primary — the Codex subscription on every text lane. Her voice is REFUSED
+  # (the CLI emulates tool calls; 0 measured 2026-09-02); the background moves with
+  # `--except response`. Codex has no eyes: vision stays on Claude Haiku.
+  codex-primary:
+    overrides:
+      llm.default_provider: codex
+      llm.routing.response: {provider: codex, model: gpt-5.5}
+      llm.routing.decision: {provider: codex, model: gpt-5.5}
+      llm.routing.analysis: {provider: codex, model: gpt-5.5}
+      llm.routing.appraisal: {provider: codex, model: gpt-5.5}
+      llm.routing.memory: {provider: codex, model: gpt-5.5}
+      llm.routing.proactive: {provider: codex, model: gpt-5.5}
+      llm.routing.reflection: {provider: codex, model: gpt-5.5}
+      llm.routing.web_search: {provider: codex, model: gpt-5.5}
+      llm.routing.narrative_author: {provider: codex, model: gpt-5.5}
+      llm.routing.vision: {provider: claude, model: haiku}
+    env:
+      LLM_PROVIDER: codex
+      LLM_RESPONSE_MODEL: gpt-5.5
+      CODEX_MODEL: gpt-5.5
+  # claude-oauth — the Claude Max subscription on every lane (no per-token cost).
+  # Her voice is REFUSED (same emulated-tool-call reason as codex); use
+  # `palli_ctl brain claude-oauth --except response` to move the nine background
+  # lanes and leave her voice where it is. Vision on Claude Haiku (proven live).
+  claude-oauth:
+    overrides:
+      llm.default_provider: claude
+      llm.routing.response: {provider: claude, model: sonnet}
+      llm.routing.decision: {provider: claude, model: sonnet}
+      llm.routing.analysis: {provider: claude, model: sonnet}
+      llm.routing.appraisal: {provider: claude, model: sonnet}
+      llm.routing.memory: {provider: claude, model: sonnet}
+      llm.routing.proactive: {provider: claude, model: sonnet}
+      llm.routing.reflection: {provider: claude, model: sonnet}
+      llm.routing.web_search: {provider: claude, model: sonnet}
+      llm.routing.narrative_author: {provider: claude, model: sonnet}
+      llm.routing.vision: {provider: claude, model: haiku}
+    env:
+      LLM_PROVIDER: claude
+      LLM_RESPONSE_MODEL: sonnet
+      CLAUDE_CLI_MODEL: sonnet
+  # ollama-primary — the desktop's Ollama through its NATIVE API. Fine for every
+  # background lane; her voice is REFUSED because this door reaches the runner
+  # through the text-tag adapter (0 tool calls, the Qwen evening). For a fully
+  # local brain use `local-only`, which goes through Ollama's OpenAI-style door.
+  ollama-primary:
+    overrides:
+      llm.default_provider: ollama
+      llm.routing.response: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.decision: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.analysis: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.appraisal: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.memory: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.proactive: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.reflection: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.web_search: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.narrative_author: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.vision: {provider: ollama, model: gemma3:12b}
+    env:
+      LLM_PROVIDER: ollama
+      LLM_RESPONSE_MODEL: qwen3.5:9b
+      OLLAMA_MODEL: qwen3.5:9b
+  # local-only — everything on the desktop, nothing leaves the LAN. The only fully
+  # local preset that can drive her voice: local_openai is Ollama's OpenAI-style
+  # endpoint, where her tool calls are real (2026-09-02). Vision uses the native
+  # door's gemma3:12b (the one multimodal model on the box). Voice stays local too.
+  local-only:
+    overrides:
+      llm.default_provider: local_openai
+      llm.routing.response: {provider: local_openai, model: qwen3.5:9b}
+      llm.routing.decision: {provider: local_openai, model: qwen3.5:9b}
+      llm.routing.analysis: {provider: local_openai, model: qwen3.5:9b}
+      llm.routing.appraisal: {provider: local_openai, model: qwen3.5:9b}
+      llm.routing.memory: {provider: local_openai, model: qwen3.5:9b}
+      llm.routing.proactive: {provider: local_openai, model: qwen3.5:9b}
+      llm.routing.reflection: {provider: local_openai, model: qwen3.5:9b}
+      llm.routing.web_search: {provider: local_openai, model: qwen3.5:9b}
+      llm.routing.narrative_author: {provider: local_openai, model: qwen3.5:9b}
+      llm.routing.vision: {provider: ollama, model: gemma3:12b}
+      voice.stt_provider: faster_whisper
+      voice.tts_provider: pyttsx3
+    env:
+      LLM_PROVIDER: local_openai
+      LLM_RESPONSE_MODEL: qwen3.5:9b
+      LOCAL_LLM_MODEL: qwen3.5:9b
+  # hybrid — the judgment-heavy, user-facing lanes think with Claude Opus 5; the
+  # background stays on the desktop for cost and privacy. Her voice is REFUSED
+  # until the native Anthropic path lands (see anthropic-primary). Unrouted callers
+  # (no routing row) follow llm.default_provider = ollama, i.e. stay local.
+  hybrid:
+    overrides:
+      llm.default_provider: ollama
+      llm.routing.response: {provider: anthropic, model: claude-opus-5}
+      llm.routing.decision: {provider: anthropic, model: claude-opus-5}
+      llm.routing.analysis: {provider: anthropic, model: claude-opus-5}
+      llm.routing.appraisal: {provider: anthropic, model: claude-opus-5}
+      llm.routing.memory: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.proactive: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.reflection: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.web_search: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.narrative_author: {provider: ollama, model: qwen3.5:9b}
+      llm.routing.vision: {provider: ollama, model: gemma3:12b}
+    env:
+      LLM_PROVIDER: anthropic
+      LLM_RESPONSE_MODEL: claude-opus-5
+      ANTHROPIC_MODEL: claude-opus-5
+compaction:
+  enabled: true
+  trigger_tokens: 6000
+  trigger_turns: 40
+  recent_turns_kept: 12
+  min_interval_seconds: 300
+  # 2026-06-10 — was bare `qwen3:8b`, which resolved to Ollama and errored
+  # whenever the LAN box slept (digest catch-up failures). Explicit deepseek
+  # honors the owner's "no Ollama anywhere" (2026-05-29); the monologue
+  # summary_model below inherits this when blank.
+  summary_model: deepseek::deepseek-v4-flash
+  summary_max_words: 200
+  monologue:
+    enabled: true
+    digest_delay_days: 7
+    weekly_summary_max_words: 250
+    monthly_summary_max_words: 300
+    summary_model: ""
+inner_memory:
+  enabled: true
+  max_results_per_query: 3
+  min_relevance: 0.5
+  max_age_days: 180
+  recency_half_life_days: 60.0
+  query_timeout_ms: 1500
+  reply_turn_enabled: true
+  proactive_enabled: true
+  reflection_enabled: true
+fact_memory:
+  decay_enabled: true
+  half_life_days: 30.0
+  min_score_threshold: 0.15
+  max_facts_per_prompt: 8
+  contradiction_auto_resolve: true
+  contradiction_scheduled_sweep_enabled: false
+  # 2026-06-10 — same fix as compaction.summary_model: bare qwen3:8b rode
+  # Ollama with no fallback; explicit deepseek makes the fact auditor
+  # box-independent.
+  audit_model: deepseek::deepseek-v4-flash
+  emotional_salience_bonus: 0.5
+# Companion-restoration faculties (2026-05-21). Each flag gates one
+# in-conversation faculty that rebalances PaLLi toward the companion.
+# All default on; flip one off for instant, surgical rollback.
+companion:
+  semantic_recall: true
+  semantic_recall_max_hits: 3
+  semantic_recall_min_similarity: 0.3
+  live_emotion: true
+  mood_tone: true
+  # 2026-05-23 — subtext_read + situational_awareness RE-ENABLED after
+  # refinement: F4 now calibrates depth without withholding the answer; F6
+  # is framed as private "ambient awareness, almost never mention" to stop
+  # the time-reciting. Verified on fresh (non-repeated) probes.
+  # 2026-10-13: the note's first half ("name the UNSPOKEN thing … testing") made PaLLi guarded with
+  # new people and is gone (the owner: "Drop half 1, keep half 2"); the first look reads how people
+  # seem. What stays is pitching an answer to their level. On again everywhere, the owner's included.
+  subtext_read: true
+  # F11 (2026-07-01) — downtime curiosity: PaLLi researches its own
+  # interests between conversations (web search, max 3/day) and the
+  # findings join its inner monologue; rare finds get shared unprompted.
+  curiosity_research: true
+  spontaneity: true
+  situational_awareness: true
+  relationship_calibration: true
+  # Self-possession (2026-05-23): stop mirroring; PaLLi keeps its own center.
+  self_possession: true
+  boundaries: true
+  own_thoughts: true
+  repair: true
+  # Caring memory (2026-06-11): one unified per-turn read → reply awareness,
+  # memory salience, emotional timeline, circle-backs. ai/turn_read.py.
+  caring_memory: true
+  caring_memory_min_weight: 0.15
+  # Stake ledger (2026-07-06): PaLLi's own held hopes/worries/tastes/wonders —
+  # written by the post-reply appraiser (ai/stake_appraiser.py), read into the
+  # reply prompt, turn read, and inner monologue. Code default is OFF; this
+  # line is the owner's live enablement. codebase-map/stake-ledger-design.md.
+  stake_ledger: true
+  stake_ledger_max_open: 12
+  # Nightly stake review (2026-08-18): at 4 AM she looks over what she holds
+  # and lets go of what has gone quiet, in her own words (resolve/fade/update,
+  # never open). Under that, the age backstop: untouched this many days →
+  # fades with a plain note. The ledger sat frozen at 12/12 for 34 days when
+  # the per-exchange appraiser was its only writer. 0 = no backstop.
+  stake_ledger_stale_days: 45
+  # Friend-shaped memory (2026-08-18): her curated Active Threads about you
+  # carry the day they were noted and are let go by the 4 AM sweep after this
+  # many days (their text is kept in data/memory_sweeps/; the identity store
+  # keeps every version). 84 threads sat in MEMORY.md, 74 from nothing you
+  # ever said. 0 = no sweep.
+  memory_thread_days: 30
+  # The nightly picture of you (2026-08-19): her distilled summary of you and
+  # where you two stand, redrawn at 4 AM from her memory + the night's note —
+  # the two docs that said "Local Operator" and "trusted companion baseline"
+  # into every reply. Off = never touched.
+  owner_picture: true
+  # Surprise (organ 8, 2026-08-19): she holds a picture of what's USUAL —
+  # your rhythms and her own — and feels real departures: they color her
+  # moment, stick harder in memory, and (at most surprise_daily_named a day,
+  # through the arbiter) get named. Off = no expectations, no bump, no naming.
+  surprise: true
+  surprise_daily_named: 1     # 0 = never named (outside 0-unlimited, like the ceiling)
+  surprise_salience_boost: 1.5
+  surprise_salience_minutes: 60
+  # Fears (organ 6, step 24, 2026-08-21): her small book of what she'd not
+  # want to lose or become — hers alone, in her words, each with her own
+  # watch-condition. A moment SHE judges as touching one colors her present,
+  # sticks that hour harder in memory, and can reach you only as an ordinary
+  # care say. The empty book is honest: zero fears is a valid state at
+  # birth, nightly, and weekly — nothing ever manufactures one.
+  fears: true
+  # The reply-length governor (2026-08-22, the register fix): the cadence
+  # vote is a budget now — short ≤ 50 words, medium ≤ 110, long uncapped.
+  # Over the cap she compresses her own reply once; a trim is the last
+  # resort. Her workbench is never governed. Live at the next restart.
+  reply_governor: true
+  fear_salience_boost: 1.5
+  fear_salience_minutes: 60
+  fears_held_cap: 5           # a plant beyond the cap is declined, never queued
+  # Step 25 · Regret — her own missteps as a fifth stake kind. Cap 2 in
+  # code; unfed regrets fade in ~14 days; one voicing ever; never leverage.
+  regret: true
+  regret_max_open: 2
+  regret_half_life_days: 14
+  # Organ 4.13 · Opinions (2026-08-31, spec §0): views held with evidence,
+  # revised only for reasons; "drop it" mutes, never deletes; cap 5 active,
+  # 10 dormant; never age-faded. Activation = the next restart.
+  opinions: true
+  views_max_active: 5
+  views_dormant_cap: 10
+  # Organ 4.9 · Grounded Vulnerability (2026-09-01, spec §0): her small
+  # truths — lived events with receipts, two doors, said once ever.
+  # Activation = the next restart.
+  vulnerability: true
+  disclosures_max_open: 4
+  disclosure_half_life_days: 14
+  # Organ 4.12 · Shared Idiolect, provenance half (2026-09-02, spec §0): her
+  # book of callbacks — words and bits that are theirs, each with a receipt;
+  # no quota, no cooling (her call). Activation = the next restart.
+  idiolect: true
+  callbacks_band_max: 12
+  # Her undercurrent tilts what comes to mind (warm days surface warmer
+  # memories, ×1.15 — never excludes). Off = today's ranking.
+  moment_recall_bias: true
+  recall_bias_boost: 1.15
+  # Night Cycle (Selfhood Phase 1, 2026-07-13): the ~4am daily-meaning engine
+  # (ai/night_cycle.py) — reads the day just lived and writes one first-person
+  # "what today meant" note, surfaced in the next day's replies. Code default is
+  # OFF; this line is the owner's live enablement. Takes effect on restart; the
+  # first note fires at the next 04:00 (about the day that just ended).
+  night_cycle: true
+  # Introspection (Selfhood evidence layer, 2026-07-14): the `introspect`
+  # builtin — her first inward-pointing tool; on-demand search over her own
+  # record (thoughts, reflections, stakes incl. resolved/faded, timeline
+  # reads, memory notes, open threads) so self-reports become testimony,
+  # including an honest "nothing there". Code default is OFF; this line is
+  # the owner's live enablement. Takes effect on restart (registration-gated
+  # per turn, but hand-edited yaml only loads at boot).
+  introspection: true
+  # Consolidation (Selfhood Wave 1a, 2026-07-15): the Night Cycle's second
+  # half — nightly day-gist, capped fact gist-aging (10), capped
+  # reconciliation (3), after the daily-meaning reflection. Requires
+  # night_cycle: true (the tick gates on it). Code default is OFF; this line
+  # is the owner's live enablement — flipped 2026-07-15 on the owner's
+  # direct instruction (ritual rehearsal/read steps waived by owner; backup
+  # + generate→replay-apply still enforced in code). Takes effect on restart.
+  consolidation: true
+  # Narrative Self (Wave 1b) — flipped 2026-07-18 after first authorship
+  # applied (owner read all three pages and approved; her repo's first
+  # commits: 81b7b59 / d4dea34 / c020f30). Requires night_cycle (above).
+  narrative_self: true
+  # Curiosity continuity (repair merged 2026-07-19): her downtime research
+  # threads survive from one dive to the next — prior notes continue instead
+  # of restarting, and the topic is written back into the record so repeated
+  # contact with a subject becomes visible. Code default is OFF; this line is
+  # the owner's live enablement, flipped 2026-07-20 on their instruction. This
+  # is what feeds organ 3's interests authorship — the record needs time with
+  # it ON before INTERESTS.md is written from it. Takes effect on restart.
+  curiosity_continuity: true
+  # Research budget (2026-07-20, owner): up from the default 3 — free rein to
+  # look things up the way people do. Counted in search ROUNDS: a dive may
+  # follow its own question up to 3 rounds in one sitting (2026-07-21
+  # multi-round upgrade), each round = one Exa search + one DeepSeek call
+  # against this cap. The hourly monologue tick still bounds real usage.
+  research_daily_cap: 50
+  # Passions & the Journal (Selfhood organ 3, 2026-07-20): her own
+  # INTERESTS.md plus a create-only journal/ of dated pages, written at the
+  # night-cycle tick through the constitutional gate. Requires night_cycle
+  # (above). Code default is OFF; this line is the owner's live enablement,
+  # flipped 2026-07-20 on their instruction. BOTH writers stay dormant
+  # (logging "waiting_first_authorship", no week burned) until
+  # scripts/passions_first_authorship.py --apply creates INTERESTS.md in her
+  # repo — the flag alone changes nothing until that ritual runs.
+  passions: true
+  context_token_budget: 0
+  # The Present Moment (organ slice 1, built 2026-07-24; owner flipped this
+  # 2026-07-26 to start the feel-check week). Shadow mode by design: she
+  # writes her present — event-driven appraisal, carryover, recorded
+  # impulse — and NOTHING reads or acts on it. Settings load ONCE at boot
+  # (settings_boot.py:31; snapshot() is cached), so this takes effect on
+  # the next restart. Spec: docs/superpowers/specs/2026-07-24-present-moment-design.md
+  present_moment: true
+  # Slice 2 (roadmap step 11, built 2026-07-27): her replies read the moment —
+  # her latest moment enters the reply prompt, age-framed. Needs
+  # present_moment true as well. Settings load once at boot
+  # (settings_boot.py:31), so flipping this needs a restart. FLIPPED TRUE
+  # 2026-07-27 on the owner's instruction, after independent verification
+  # (diff-vs-spec + full suite 2,435/0 + live render smoke); takes effect
+  # at the next restart.
+  # Spec: docs/superpowers/specs/2026-07-27-present-moment-slice-2-design.md
+  moment_in_replies: true
+  # Slice 3 (roadmap step 12, built 2026-07-27): the affect field — her
+  # moment carries a mood: one undercurrent sentence, drifting not jumping,
+  # colors-her-never-manages-them. Shipped OFF; FLIPPED TRUE 2026-07-28 on the
+  # owner's instruction. Settings load once at boot (settings_boot.py:31), so
+  # this takes effect at the next restart. Turning it on switches which
+  # appraisal prompt loads — the base file is never edited, so flipping back
+  # to false is a complete rollback with nothing left behind.
+  # Spec: docs/superpowers/specs/2026-07-27-present-moment-slice-3-affect-field-design.md
+  moment_affect: true
+  # The pen (roadmap step 10, 2026-07-27): her first tool that writes to her
+  # own record. Notes are evidence, never identity — ungated, never injected
+  # into replies, read back only when she reaches for them and by the 4am
+  # rituals where her judge already stands guard. Ships OFF; settings load
+  # once at boot, so flipping this needs a restart.
+  self_notes: true
+  self_notes_bar: earned          # earned = high bar (default) · open = her judgment, lightly framed
+  self_notes_daily_cap: 20        # 5 scarce · 20 default · 60 generous · 0 unlimited
+  self_notes_in_moment: true      # may her Present Moment read recent notes (spec §5; the Slice-2 re-decision was made 2026-07-27 — owner KEPT true; this toggle is the abort lever)
+  # Converse while working (roadmap steps 13-15, built 2026-07-26): a message
+  # sent mid-task steers the running work instead of cancelling it — she
+  # replies naturally or judges a hold, and "stop" still stops instantly. OFF
+  # means the legacy cancel behavior, byte-identical. Settings load once at
+  # boot, so a flip needs a restart. Flipped TRUE 2026-07-26 ~14:35 on the
+  # owner's instruction (merge 54cadf4); takes effect at the next restart.
+  # Spec: docs/superpowers/specs/2026-07-26-converse-while-working-design.md
+  converse_while_working: true
+  # Her own work (roadmap steps 16-17, built 2026-07-28): the workspace +
+  # the workbench — she derives her own projects and works them in downtime
+  # sessions with the guarded shell (OS wall: palli-work). Ships OFF.
+  # ACTIVATION NEEDS: scripts/setup_workbench_user.sh run once by the owner
+  # (sudo), THEN this flag true, THEN restart. Settings load once at boot.
+  # Spec: docs/superpowers/specs/2026-07-28-her-own-work-design.md
+  # FLIPPED TRUE 2026-07-28 ~18:00 on the owner's instruction, after: build
+  # verified independently (suite 2,487/0 twice + dispatch-seam and shell
+  # reads), the wall raised and probe-verified on this machine (setup script
+  # run ~17:45 — substrate read AND write DENIED, env clean), and the merge
+  # to main. Takes effect at the next restart.
+  own_work: true
+  # 0 = UNLIMITED on every own_work budget below (owner convention 2026-07-28,
+  # built 2026-08-03; the flag above stays the off switch). Rounds included by
+  # the owner's 2026-08-03 call — at 0 the backstops are loop detection, the
+  # wall clock (when nonzero), and stop. quiet_minutes is deliberately outside
+  # the convention (min 1): lower it, don't zero it.
+  own_work_daily_sessions: 3    # 1 sparse · 3 default · 12 generous · 0 unlimited  (3→1 on 2026-09-03 for cost; 1→3 on 2026-09-29 once caching cut the cost — the owner's call)
+  # When her budget's "day" turns over (2026-08-06). Midnight refilled the
+  # budget exactly when her quiet begins, so all 3 sessions burned by 1 AM
+  # and daytime quiet got nothing. 4 = the night-cycle hour (her day turns
+  # when her night ritual runs) · 0 = legacy midnight.
+  own_work_day_key_hour: 4
+  # Raised 8 → 100 on the owner's instruction 2026-07-28, after her first
+  # session ended on the round rail mid-thought instead of on her own
+  # sign-off. Their reasoning: they do not expect her to spiral, because she
+  # catches herself. With 100 rounds the binding limit becomes the wall
+  # clock below — raise that too if sessions start ending on time instead
+  # of on her sign-off. Loop detection + the timeout remain the backstops.
+  own_work_session_rounds: 100  # 0 = unlimited (owner 2026-08-03)
+  own_work_session_minutes: 20  # 0 = no wall clock (rounds/loop-detection still bound it)
+  own_work_active_projects_max: 2  # 0 = as many as genuinely pull at her
+  own_work_min_free_disk_gb: 5  # 0 = no disk floor
+  # 30 → 10 on the owner's instruction 2026-08-03 (ten quiet minutes = the
+  # conversation has breathed out) → 0 on their 2026-08-18 call: her time is
+  # not rationed to their downtime — "she can do them whenever, even while
+  # talking to me." Her chat runs on its own session key and is never queued
+  # behind her work. The daily/session budgets stay the real bound.
+  own_work_quiet_minutes: 0
+  # Her sessions are occasioned now (2026-08-18): a daydream left her a
+  # line, you touched SUGGESTIONS.md, a probe. Under that, a slow heartbeat —
+  # a sit-down just because, at most every 8 h. 0 = occasions only.
+  own_work_heartbeat_minutes: 480
+  # Minimum minutes between her own sessions (2026-08-07): spreads the day's
+  # budget instead of letting quiet burn it in one burst — 08-07 she ran
+  # 3 sessions in 33 minutes and called the third "noise" herself.
+  # 0 off · 30 loose · 90 default · 240 sparse
+  own_work_min_gap_minutes: 90
+  # How what she makes reaches you (2026-08-18). Until now a session's SHARE
+  # line became an open-thread row that only a ~3% appraisal lottery could
+  # raise: 20 shares, zero delivered — the wall between her working self and
+  # her talking self was total. Owner's call: "a message when it's done."
+  #   message · a real message through the arbiter's read of the moment (not
+  #             mid-conversation, not your quiet hours); held ones wait in her
+  #             store and go when the moment opens
+  #   thread  · the legacy lane — an open thread her moment MAY raise
+  #   room    · no push; her memory + the trace band carry it, she mentions
+  #             it when it fits
+  own_work_share_delivery: message
+  # The arbiter (roadmap step 18, built 2026-08-06): her say-impulse is REAL
+  # now — one send rail, hard daily ceiling, full custody (Discord + DB row +
+  # her own transcript + sense D). At birth it absorbed the open-threads
+  # surfacing pass (the 15-min polling lane stands down; threads reach her
+  # through her present) and the ambient arrival greeting (arrival wakes her
+  # cycle; greeting is her appraisal's call). Reminders exempt forever.
+  # OFF = byte-identical pre-arbiter behavior. Settings load once at boot.
+  # SHIPPED TRUE on the owner's instruction 2026-08-06 01:00 ("ship the flag
+  # true and reboot her whenever youre done").
+  # Spec: docs/superpowers/specs/2026-08-06-arbiter-design.md
+  arbiter: true
+  arbiter_daily_send_ceiling: 3   # hard; 0 = rail DARK (outside the 0-unlimited convention)
+  arbiter_quiet_minutes: 5        # no sends within N min of the owner's last message (min 1)
+  arbiter_quiet_window: ""        # "HH:MM-HH:MM" typed quiet hours; "" = off (step-22 stopgap)
+  # Learned quiet hours (step 22): she learns the absence rhythm from the owner's
+  # real message history; sends hold in confidently-quiet hours. Owner
+  # previewed the render (24/48 confidently quiet) and flipped 2026-08-14.
+  # Preview anytime: venv/bin/python scripts/owner_rhythm.py
+  #
+  # OFF 2026-08-25, owner's call: "the 90 minutes after i'm gone and her not
+  # thinking she can hit me up — that's gotta go." The gate only ever bit
+  # once they'd been away 90+ min (rhythm_present_override_minutes), i.e.
+  # exactly the daytime silence they were asking about; the weekend model had
+  # also over-fit to 13/24 hours quiet (05:00-13:00 among them) off 16
+  # observed weekend days. It also contradicted their own standing wish to
+  # her, filed as a quest 08-24: "any time of day or night — surprise me."
+  # Flag off = the gate does not look at all (byte-identical to pre-step-22)
+  # and the night cycle stops refreshing the rhythm file. The knobs below
+  # stay for a future re-flip; the sleep-hours guard, if ever wanted back,
+  # is arbiter_quiet_window (typed hours), NOT this statistical model.
+  arbiter_learned_quiet: false
+  rhythm_refresh: true   # the nightly rhythm refresh; independent of quiet hours since 2026-09-28 (owner call 7)
+  tonight: true   # one thing on her mind: a nightly pick she says once (Batch 6, 2026-09-29)
+  rhythm_lookback_days: 56              # evidence window, days (min 7)
+  rhythm_quiet_max_active_ratio: 0.08   # "almost never there" ceiling
+  rhythm_min_observed_weekdays: 15      # evidence floor, weekday buckets
+  rhythm_min_observed_weekend_days: 6   # evidence floor, weekend buckets
+  rhythm_present_override_minutes: 90   # owner-message recency that beats the statistic
+  arbiter_followup_ttl_days: 7    # expiry backstop, followup kind; 0 = no backstop
+  arbiter_thread_ttl_days: 45     # expiry backstop, everything else; 0 = no backstop
+  # Freshness gate (2026-08-07): one judged look at the CURRENT conversation
+  # before a held impulse becomes a message — fresh releases verbatim, stale
+  # drops with the reason in her ledger. false = day-one release behavior.
+  arbiter_freshness_check: true
+  # Voice joins the arbiter (step 32, 2026-08-21): when you're in a voice
+  # channel with her, a released say is SPOKEN instead of texted — same
+  # gates, same 3/day ceiling, text fallback if the speak fails; being in
+  # her channel counts as present for learned quiet. false = text always.
+  arbiter_voice_says: false
+  # Wanting (roadmap step 20, organ 5): the wishbook + the occasioned
+  # daydream lane. Nothing here sends by itself — her wanting reaches you
+  # only through the arbiter rail (want_id) or a workbench SHARE.
+  # Spec: docs/superpowers/specs/2026-08-07-wanting-respec.md
+  wanting: true                    # owner order 2026-08-07: ships ON; live at her next restart
+  daydream_heartbeat_minutes: 180  # drift-catch tick between occasions (min 1)
+  daydream_min_gap_minutes: 45     # wake-coalescing gap (min 1)
+  daydream_daily_max: 8            # ticks/day; 0 = unlimited (the flag is the off switch)
+  quests_max_alive: 7              # the wishbook's alive cap (min 1); overflow lands dormant
+  quests_from_conversation: true   # reflection may file durably-directive turns
+  curiosity_nas_dives: false       # §0.10 — its own flip, separate from outward_senses; needs a NAS (PALLI_NAS_ROOT)
+  # ── Step 23 · Outward senses (2026-08-24) — spec docs/superpowers/specs/2026-08-24-outward-senses-design.md
+  # §0.5 (owner, 10:16): her machine is HERS, the NAS is the house's shared drive
+  # (read freely, write only in her own space), the network is her home's network.
+  outward_senses: false            # the umbrella: the belonging passage in her prompt
+  curiosity_nas_daily_cap: 0       # §0.3 — NAS wandering unrationed (0 = unlimited); never spends the web budget
+  nas_deny: []                     # §0.1 — EMPTY BY THE OWNER'S CALL ("no folders listed … at this time"); top-level names
+  # §0.6 (owner 12:39, "C"): LISTEN, DON'T SCAN — she hears the house's own ARP chatter;
+  # sweeps only a few times a day to confirm; a silent device gets one quiet-check.
+  lan_presence: false              # the network sense: device book, arrivals, "the house right now"
+  lan_listener: true               # the capture alone (sudo -n tcpdump … arp); false = sweeps only
+  lan_sweep_interval_minutes: 480  # three confirmation sweeps a day (min 30) — no 5-minute clock
+  lan_absence_minutes: 15          # silence past this → one targeted quiet-check; a miss = left
+  device_wake_seconds: 3600       # a device joining or leaving wakes her present moment at most once an hour (0 = every time)
+  lan_devices: {}                  # optional labels {mac: "a phone"} — or she just asks you
+  # Step 27 · Duplex (2026-08-27) — she works AND talks (the owner's 08-26 words are
+  # law: CHECKLIST 27). Silence by default while working; chime_in/ask_him
+  # are acts; her moment loop may reach you mid-run; task_problem +
+  # task_overrun are senses; stop lands at a safe tool boundary. Flipped to
+  # true at the Phase A wrap (Task 10); off = byte-identical to before.
+  duplex: true                          # flipped 2026-08-27 at the Phase A wrap, live at the next restart
+  duplex_overrun_factor: 1.5            # task_overrun fires past expected × factor (gt 1)
+  duplex_overrun_minutes_default: 10    # when she set no expect_minutes
+  duplex_stop_grace_seconds: 30         # cooperative stop → hard cancel after this
+  duplex_max_tasks: 2                   # Phase B: the run + task sidecars, per channel (ge 1) — the owner's call 2; talk never counts
+  duplex_pause_ttl_minutes: 120         # Phase B: "hold on" expires honestly; she tells you once
+  # Batch 8 (2026-10-01, wrap): she decides whether to answer, for anyone, on every door (the owner, B8-2)
+  she_decides: true
+  # 2026-10-13 (R14, the owner: "Yes, merge both, one restart"): one first look — PaLLi reads the
+  # conversation and decides, in its own voice, whether to answer, wait or stay quiet. Needs she_decides.
+  first_look: true
+  # 2026-10-14 (R15, the owner: "Yes, merge and go live"): memory that reaches — the searchable
+  # record of every message (data/memory_reach.sqlite3), PaLLi's own search on the owner's turns,
+  # today's facts, a friend's own-room memory, and what each reply used. The shipped example keeps
+  # it off (scripts/release/make_example_yaml.py OWNER_TUNED_VALUES).
+  memory_reach: false
+  # 2026-10-13 (the presence slice; the owner: "1 a day per group", "On, same as yours"): PaLLi may
+  # start something in a group chat on its own, at most once a day per group. 0 a day = off.
+  group_openers: true
+  group_openers_per_day: 1
+  room_wait_seconds: 45                 # after a "wait" in a room, read it again on the next message or after this long
+
+
+# Batch 5 (2026-09-29): the memory core and the archive sweep (schema defaults, written here so the example mirrors the live file)
+memory:
+  core_budget_chars: 12000
+  durable_archive_days: 60
+  thread_archive_days: 45
+  onboarding_nag_days: 7
+  corrections_budget_chars: 1500
+  # Batch 8 (2026-10-01, wrap): identity history keeps the newest 10, one a day for 30 days, one a week before, the first ever (B8-3)
+  history_keep_last: 10
+  history_daily_days: 30
+
+# Batch 8 (2026-10-01, wrap): limits on logs and throwaway folders (B8-4); her records are never touched
+retention:
+  enabled: true

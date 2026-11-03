@@ -1,0 +1,67 @@
+# Core dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-socketio>=5.10.0
+python-multipart>=0.0.6
+qrcode>=8.2
+aiohttp>=3.13
+aiosqlite>=0.20.0
+python-dotenv>=1.0.0
+
+# Discord bot
+discord.py[voice]==2.7.1
+PyNaCl>=1.5.0
+discord-ext-voice-recv==0.5.2a179
+davey>=0.1.4
+
+# Telegram bot (the second door, 2026-09-14). asyncio + httpx — the HTTP
+# family already here, so no second event loop and no new transport stack.
+python-telegram-bot==21.*
+
+# Voice processing
+audioop-lts>=0.2.0
+aiofiles>=23.2.0
+
+# Audio processing
+ffmpeg-python>=0.2.0
+soundfile>=0.12.0
+sounddevice>=0.4.7
+numpy>=1.24.0
+
+# AI and ML
+openai>=1.0.0
+pydantic>=2.10.0
+PyYAML>=6.0.0
+ruamel.yaml>=0.18.0
+sentence-transformers>=3.0.0
+
+# Web session/CSRF plumbing (local dashboard)
+python-jose[cryptography]>=3.3.0
+slowapi>=0.1.9
+
+# Web requests
+requests>=2.31.0
+httpx>=0.25.0
+websockets>=16.0
+mss>=10.0.0
+Pillow>=11.0.0
+pytesseract>=0.3.13
+opencv-python>=4.10.0; sys_platform != "darwin"
+
+
+# Date/time handling
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Development
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Claude Agent SDK — delegation bridge (Stage 1+)
+claude-agent-sdk>=0.1.0
+
+# Interactive PaLLi config TUI (Stage 1, 2026-05-14)
+textual>=0.85.0
+
+# Anthropic SDK — Claude vision + fast Haiku aux calls (turn_read / cadence), 2026-07
+anthropic>=0.40.0

@@ -1,0 +1,22 @@
+Screen {
+    background: $surface;
+}
+
+#screen-body {
+    padding: 2 4;
+}
+
+.step-label {
+    text-style: bold italic;
+    color: $accent;
+    padding-bottom: 1;
+}
+
+OptionList {
+    border: round $accent;
+    margin: 1 0;
+}
+
+Button {
+    margin: 1 1;
+}

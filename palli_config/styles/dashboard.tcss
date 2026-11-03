@@ -1,0 +1,38 @@
+Screen {
+    background: $surface;
+}
+
+Horizontal {
+    height: 70%;
+}
+
+#task-area {
+    width: 70%;
+    border: round $accent;
+    margin: 1;
+    padding: 1;
+}
+
+#provider-area {
+    width: 30%;
+    border: round $accent;
+    margin: 1;
+    padding: 1;
+}
+
+#health-area {
+    height: 30%;
+    border: round $warning;
+    margin: 1;
+    padding: 1;
+}
+
+.panel-title {
+    text-style: bold;
+    color: $accent;
+    padding-bottom: 1;
+}
+
+DataTable > .datatable--cursor {
+    background: $accent 50%;
+}

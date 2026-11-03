@@ -1,0 +1,43 @@
+# What must never reach the image (week 1 task 5).
+#
+# Two kinds of entry: the heavy (a 5 GB venv, a Next build, the git history)
+# and the private (keys, databases, logs). The build context is sent to the
+# daemon in full before anything runs, so a missing line here costs both size
+# and secrecy.
+
+# Heavy — and wrong: a venv built on the host is the host's interpreter.
+venv
+.venv
+__pycache__
+*.pyc
+.git
+.github
+
+# Private — keys never enter an image. .env.template is the shipped example and
+# is the one file of the family that does.
+.env*
+!.env.template
+
+# Her memory and your identity are mounted at runtime, never baked in.
+#
+# `COPY . /app` takes the whole context, so an exclusion of only the databases
+# still shipped data/delegations/ (host credentials), data/agent_sessions/,
+# data/arbiter/, data/present_moment/ and the owner/user identity files into a
+# layer anyone with the image can read. Everything under data/ is out; the one
+# exception is the shipped example the first preflight seeds the config from.
+data/**
+!data/palli.example.yaml
+identity/owners
+identity/users
+identity/palli
+backups
+logs
+
+# The dashboard's build inputs and outputs — rebuilt in the image if needed.
+website/node_modules
+website/.next
+
+# Working files that are not the product.
+.superpowers
+.pytest_cache
+.mypy_cache

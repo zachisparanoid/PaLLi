@@ -1,0 +1,43 @@
+Screen {
+    background: $surface;
+}
+
+Horizontal {
+    height: 1fr;
+}
+
+#tasks-panel, #providers-panel {
+    border: round $accent;
+    padding: 1;
+    margin: 1;
+}
+
+#tasks-panel {
+    width: 60%;
+}
+
+#providers-panel {
+    width: 40%;
+}
+
+.panel-title {
+    text-style: bold;
+    color: $accent;
+    padding-bottom: 1;
+}
+
+#status-line {
+    height: 1;
+    dock: bottom;
+    padding: 0 1;
+    color: $warning;
+}
+
+OptionList {
+    background: $surface;
+    border: none;
+}
+
+OptionList > .option-list--option-highlighted {
+    background: $accent 50%;
+}

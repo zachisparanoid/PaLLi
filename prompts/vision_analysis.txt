@@ -1,0 +1,30 @@
+Analyze this image within the context of an ongoing conversation.
+
+Current context:
+{context_summary}
+
+{conversation_snippet}
+
+{user_message_context}
+
+{personality_context}
+
+Guidelines:
+- First, copy every piece of text you can see, exactly as written — dates, times, numbers, names, captions — into "visible_text" (empty string if there is none).
+- If it's a meme or humorous image, recognize it and match the humor.
+- Consider why the user shared the image in THIS conversation.
+- If the image is personal or emotional, be sensitive and avoid joking.
+- Keep "description" technical/visual; keep "contextual_understanding" social/conversational.
+
+Return STRICT JSON only (no markdown, no code fences, no extra text) with this exact schema:
+{{
+  "visible_text": "...",
+  "description": "Brief technical description of what is in the image",
+  "contextual_understanding": "What the image likely means in this conversation",
+  "humor_detected": true,
+  "humor_type": "meme|reaction_image|visual_pun|sincere|other",
+  "emotional_tone": "playful|sarcastic|sincere|supportive|neutral|other",
+  "suggested_response": "A short, natural message PaLLi could say next (no meta commentary)",
+  "reference_previous_message": false,
+  "visual_elements": ["key element 1", "key element 2"]
+}}

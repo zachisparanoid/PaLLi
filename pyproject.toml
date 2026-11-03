@@ -1,0 +1,96 @@
+# PaLLi — packaging metadata (stranger-proofing week 1, task 5).
+#
+# This exists for ONE reason: `pip install -e .` puts `palli_ctl` on the PATH,
+# so the commands PaLLi prints ("Change it:  palli_ctl brain --pick") are
+# commands a stranger can paste. It is not a distribution.
+#
+# NO WHEEL IS EVER BUILT OR PUBLISHED from this file. The repo IS the runtime
+# root: `main.py` runs from the checkout, `data/`, `identity/`, `prompts/` and
+# `.env.local` are read relative to it, and an installed copy in site-packages
+# would find none of them. Editable is the only supported install:
+#
+#     venv/bin/pip install -e .
+#
+# (If the venv has no pip — the owner's does not — run
+# `venv/bin/python -m ensurepip` first. Nothing else depends on the install:
+# every command still works as `venv/bin/python scripts/palli_ctl.py …`, and
+# `palli_config.ctl_prefix.ctl_prefix()` decides which of the two PaLLi prints.)
+
+[build-system]
+# >=77 for the SPDX string form of `license` below.
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "palli"
+description = "PaLLi — a local-first AI companion that runs on your own machine."
+readme = "README.md"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
+requires-python = ">=3.13"
+# 3.13 is not a preference. audioop-lts exists because Python 3.13 removed
+# audioop, and .python-version pins the interpreter the venv is built with.
+dynamic = ["dependencies", "version"]
+
+[project.scripts]
+# scripts/ is a package (scripts/__init__.py) so this target resolves.
+palli_ctl = "scripts.palli_ctl:main"
+
+[project.optional-dependencies]
+# Semantic recall. sentence-transformers pulls torch, which is a ~2.5 GB CUDA
+# wheel by default: install torch from the CPU index FIRST unless you have a
+# GPU you mean to use —
+#     pip install torch --index-url https://download.pytorch.org/whl/cpu
+# then this extra resolves against the wheel already in place.
+#
+# NOTE (week 1): sentence-transformers is ALSO still a hard line in
+# requirements.txt, so today this extra is a declaration of intent, not a way to
+# skip the download. Making embeddings genuinely optional — with a lexical
+# fallback for recall when the extra is absent — is its own piece of work
+# (launch gap analysis, tier 2). This extra is where it will land.
+embeddings = [
+    "sentence-transformers>=3.0.0",
+]
+
+# Local speech. Only what the code actually imports: faster-whisper
+# (voice/speech.py, local STT) and pyttsx3 (voice/speech.py, offline TTS).
+# Deepgram and Lemonfox are plain HTTP through aiohttp — no SDK, no extra.
+voice = [
+    "faster-whisper>=1.0.0",
+    "pyttsx3>=2.90",
+]
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+# Everything the console script's import graph reaches, and nothing else. The
+# tests, the website, the docs and the evals are part of the repo but not part
+# of the import graph.
+#
+# namespaces = true is setuptools' default, and it is pinned here because this
+# tree depends on it: api/, bots/, core/ and voice/ have no __init__.py. They
+# are implicit namespace packages, and a flip of that default would leave an
+# editable install unable to import the spine.
+namespaces = true
+include = [
+    "ai*",
+    "api*",
+    "bots*",
+    "core*",
+    "palli_config*",
+    "scripts*",
+    "voice*",
+]
+exclude = [
+    "dashboards*",
+    "docs*",
+    "docs-site*",
+    "evals*",
+    "identity*",
+    "logs*",
+    "prompts*",
+    "tests*",
+    "website*",
+]

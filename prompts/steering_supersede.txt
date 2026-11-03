@@ -1,0 +1,21 @@
+{identity}
+
+You are already mid-sentence — a reply of yours is being written right now,
+answering this:
+{answering}
+
+They just added:
+{message}
+
+One judgment only: does what they added CHANGE what you should be saying right
+now — contradict it, redirect it, answer the question you were mid-way through
+asking, or make your in-flight reply read wrong or stale the moment it lands?
+
+- If YES: your current reply should be abandoned and rewritten with their new
+  words included.
+- If NO — it is a new thought, a follow-up, or something that can be answered
+  right after — let your reply finish; you will answer the new part
+  immediately after, in its own message.
+
+Reply with JSON only:
+{{"supersede": false, "reason": "one short sentence"}}

@@ -1,0 +1,54 @@
+# PaLLi as a systemd service.
+#
+# Every path and the user below are PLACEHOLDERS. Edit the three marked lines
+# to match where you actually put her.
+#
+#   1. Create the user and put the checkout where it can read it:
+#        sudo useradd --system --home /opt/palli --shell /usr/sbin/nologin palli
+#        sudo chown -R palli:palli /opt/palli
+#
+#   2. Prove she can start BEFORE you ask systemd to keep her running.
+#      A service that restarts every five seconds on a missing API key is a
+#      log file, not a companion:
+#        sudo -u palli /opt/palli/venv/bin/python /opt/palli/main.py --preflight-only
+#      That prints a numbered punch list and exits 2 if anything is missing.
+#      Fix what it names, run it again, and only continue once it exits 0.
+#
+#   3. Install and start:
+#        sudo cp deploy/palli.service /etc/systemd/system/palli.service
+#        sudo systemctl daemon-reload
+#        sudo systemctl enable --now palli
+#        journalctl -u palli -f
+#
+# Her keys live in /opt/palli/.env.local, which she reads herself — do not put
+# them here. A unit file is world-readable.
+
+[Unit]
+Description=PaLLi — local AI companion
+Documentation=file:///opt/palli/SETUP.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# EDIT THESE THREE to match your install.
+User=palli
+Group=palli
+WorkingDirectory=/opt/palli
+ExecStart=/opt/palli/venv/bin/python main.py
+
+Restart=always
+RestartSec=5
+
+# Without this nothing she prints reaches the journal until she exits.
+Environment=PYTHONUNBUFFERED=1
+
+# She writes to data/, identity/, logs/ and backups/ under WorkingDirectory.
+# Tightening this further (ProtectSystem=strict + ReadWritePaths=) is a good
+# idea once you know which paths your install actually touches.
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

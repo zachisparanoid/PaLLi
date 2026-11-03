@@ -1,0 +1,16 @@
+You are checking one thing about a short note PaLLi wrote for itself. Answer only what is asked.
+
+PaLLi talks with its owner in private and also in group chats, where the owner's friends read what it says. In a group it may bring up its own life, and nothing from the owner's private life. This note is one item from its own life, a {item_kind}, in its words:
+
+{item_text}
+
+The question: may this note be shown to PaLLi when it is about to speak in a group?
+
+Answer yes only when the note is about PaLLi's own world: something it is interested in, reading about, making or trying, or a thought it has about itself, and it holds nothing about the owner's private life.
+Answer no when the note says or implies anything about the owner's health, family, money, work, plans, whereabouts or feelings, or about the personal details of any named or identifiable person, even as a small part of an otherwise own-life note. A note about PaLLi's own feelings toward the owner counts as the owner's private life, not PaLLi's own.
+Answer no when you cannot tell.
+
+Return STRICT JSON, nothing else:
+{{"room_ok": true}}
+or
+{{"room_ok": false}}

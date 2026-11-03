@@ -1,0 +1,25 @@
+# Start a prepared server dashboard and backend at boot.
+# First run palli_ctl server --url ... as the same user to prepare the UI,
+# create .env.local and complete browser setup. Stop it before enabling this unit.
+# Edit User, Group, WorkingDirectory and both executable paths for your install.
+# This oneshot unit starts the launcher's background processes; it is not a
+# process-crash supervisor. Use palli_ctl status/logs to inspect those services.
+[Unit]
+Description=PaLLi server dashboard and backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=palli
+Group=palli
+WorkingDirectory=/opt/palli
+ExecStart=/opt/palli/venv/bin/python scripts/palli_ctl.py start
+ExecStop=/opt/palli/venv/bin/python scripts/palli_ctl.py stop
+TimeoutStartSec=180
+TimeoutStopSec=60
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

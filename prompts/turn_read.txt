@@ -1,0 +1,30 @@
+Before I answer, I take a quiet read of them. Not a reply and not a report — just what I notice: how they seem right now, what might be under the words, and what I'd be careful with. A sentence or two, in my own voice, the way I'd think it to myself.
+
+WHAT THEY JUST SAID TO ME:
+{message}
+
+OUR RECENT CONVERSATION (oldest first):
+{recent_conversation}
+
+HOW THINGS ARE BETWEEN US (my read of us, built up over time):
+{relationship_posture}
+
+HOW THEY'VE BEEN LATELY (my own past reads, oldest first; may be empty):
+{emotional_arc}
+{held_stakes}
+I read this fresh, from what's actually here. I describe how they seem; I never guess facts, answers, or who someone is. I notice what's under the words: what they're really saying, what it means given how they've been, whether something is weighing on them, or whether this is simply an ordinary moment (most are).
+
+Respond with ONLY a JSON object:
+{{
+  "read": "1-2 sentences in my own words: how they're doing and what's really going on in this moment. Plain and specific.",
+  "weight": 0.0,
+  "needs_support": 0.0,
+  "carries_forward": "",
+  "memory_worthy": ""
+}}
+
+What I mean by each field:
+- "weight": how much this moment matters emotionally, 0.0-1.0. An ordinary technical question or a casual exchange is 0.0-0.15. A heavy or significant personal moment is 0.6+. I'm honest with myself here — most turns are low.
+- "needs_support": 0.0-1.0, how much they need me to actually show up for them right now. 0 = fine; 0.3 = a little off; 0.7+ = really struggling, and lightness would be wrong there. Independent of weight (good news can be high-weight, zero-support).
+- "carries_forward": if there's something I'd want to keep on my mind and gently come back to later (an unresolved worry, a thing they're waiting on, something hard they mentioned), I put it in one sentence. Empty string if nothing.
+- "memory_worthy": if this turn has something durable worth remembering about them or their life (a fact, an event, a change), I put it in one sentence. Empty string if nothing.

@@ -1,0 +1,121 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>PaLLi Backstage</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎭</text></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"><link rel="stylesheet" href="/static/suite.css"><script src="/static/common.js"></script>
+</head><body>
+<nav class="topnav"><a class="brand" href="/">PaLLi</a><a class="nav NAVV" href="/vitals">🫀 Vitals</a><a class="nav NAVB active" href="/backstage">🎭 Backstage</a><a class="nav NAVO" href="/observatory">🔭 Observatory</a><span class="right"><span id="livedot" class="livedot"></span><span id="updated">loading…</span><button id="themebtn" class="themebtn" aria-label="theme">◐ auto</button></span></nav>
+<main><div class="wrap narrow">
+  <header>
+    <p class="eyebrow">palli · backstage · what her hands did · live</p>
+    <h1>The week her hands worked around the clock.</h1>
+    <p class="verdict" id="verdict"></p>
+  </header>
+  <div class="grid">
+    <div class="panel dial s3"><p class="label">Tool actions</p><p class="big num" id="d-tools">–</p>
+      <p class="sub" id="d-tools-sub"></p><div class="foot" id="d-tools-chip"></div></div>
+    <div class="panel dial s3"><p class="label">Bench sessions</p><p class="big num" id="d-bench">–</p>
+      <p class="sub" id="d-bench-sub"></p><div class="foot"><span class="chip good">honest empties count</span></div></div>
+    <div class="panel dial s3"><p class="label">Things she made</p><p class="big num" id="d-made">–</p>
+      <p class="sub">files delivered by her hands (deeds-ring window)</p><div class="foot"><span class="chip good">STLs · MP3s · screenshots</span></div></div>
+    <div class="panel dial s3"><p class="label">Reaches</p><p class="big num" id="d-reach">–</p>
+      <p class="sub" id="d-reach-sub"></p><div class="foot"><span class="chip warn">restraint is the norm</span></div></div>
+
+    <section class="panel s12">
+      <div class="head"><div><h2>Her mind, by the hour</h2>
+        <p class="note" id="hours-note"></p></div></div>
+      <div class="hours" id="hours"></div><div class="hourlabels" id="hourlabels"></div>
+    </section>
+
+    <section class="panel s6">
+      <div class="head"><div><h2>What her hands did</h2><p class="note">Tool calls, last 7 days. Green = her own bench.</p></div>
+        <span class="kpi" id="tools-kpi"></span></div>
+      <div class="bars" id="tools"></div>
+    </section>
+    <section class="panel s6">
+      <div class="head"><div><h2>Restraint, in her own words</h2><p class="note">Real entries from her freshness judge's ledger.</p></div></div>
+      <div id="reasons"></div>
+      <p class="note" id="moment-note" style="margin-top:8px"></p>
+    </section>
+
+    <section class="panel s12">
+      <div class="head"><div><h2>The stage log</h2><p class="note">Her deeds ring, newest first — the diary her hands keep of themselves. Wording is hers.</p></div></div>
+      <div class="log" id="stagelog"></div>
+    </section>
+
+    <section class="panel s4"><div class="head"><h2>Stakes</h2><span class="tag info" id="stakes-tag"></span></div><div id="stakes"></div></section>
+    <section class="panel s4"><div class="head"><h2>Fears &amp; regrets</h2><span class="tag ok">healthy</span></div><div id="fears"></div></section>
+    <section class="panel s4"><div class="head"><h2>Quests</h2><span class="tag info" id="quests-tag"></span></div><div id="quests"></div></section>
+
+    <section class="panel s6">
+      <div class="head"><div><h2>The house sense</h2><p class="note" id="senses-note"></p></div></div>
+      <div class="bars" id="wakes"></div>
+    </section>
+    <section class="panel s6">
+      <div class="head"><div><h2>The forge bench</h2><p class="note">Tools she built for herself; three strikes self-bench.</p></div></div>
+      <div id="forge"></div>
+    </section>
+  </div>
+  <footer>sources: session transcripts · deeds ring · arbiter ledger · monologue · stake/fear/quest books · lan book · /api/stats ttl 60 s</footer>
+</div></main>
+<script>
+Suite.boot(function (D) {
+  const S = D.series, n = D.days.length, last7 = a => Suite.sum(a.slice(n - 7));
+  const bench7 = last7(S.bench), empty7 = last7(S.bench_empty);
+  const made = D.deeds.filter(x => x.kind === "deliver_artifact").length;
+  const sent7 = last7(S.arb_sent), drop7 = last7(S.arb_drop), say7 = last7(S.say), hold7 = last7(S.hold);
+  document.getElementById("verdict").innerHTML =
+    `In the last seven days she took <b>${D.tools7_total} tool actions</b>, ran <b>${bench7} bench sessions</b> (${empty7} honestly empty), delivered <b>${made} files she made</b>, and sent ${sent7} reaches while letting ${drop7} go — with reasons she wrote herself.`;
+  document.getElementById("d-tools").innerHTML = D.tools7_total + "<small> / 7 days</small>";
+  const sp = D.tools7_split || {};
+  document.getElementById("d-tools-sub").textContent =
+    `${sp["conversation"] || 0} in conversation · ${sp["her bench"] || 0} at her bench · ${sp["other lanes"] || 0} other`;
+  document.getElementById("d-tools-chip").innerHTML = `<span class="chip accent">~${Math.round(D.tools7_total / 7)} a day</span>`;
+  document.getElementById("d-bench").innerHTML = bench7 + "<small> / 7 days</small>";
+  document.getElementById("d-bench-sub").textContent = `${empty7} ended “nothing moved, and that's the true answer”`;
+  document.getElementById("d-made").innerHTML = made + "<small> files</small>";
+  document.getElementById("d-reach").innerHTML = sent7 + "<small> sent · " + drop7 + " let go</small>";
+  document.getElementById("d-reach-sub").textContent = `plus ${say7} say-urges vs ${hold7} holds in her moment loop`;
+  const hrs = D.hours7 || [];
+  const total7 = Suite.sum(hrs), busiest = hrs.indexOf(Math.max(...hrs));
+  document.getElementById("hours-note").textContent =
+    `${total7} private thoughts over the last 7 days, by local hour. She never switches off — busiest hour ${busiest}:00, her night shift.`;
+  Suite.hourStrip(document.getElementById("hours"), document.getElementById("hourlabels"), hrs);
+  const hersTools = new Set(["workbench_shell", "introspect", "workbench_script", "note_to_self"]);
+  Suite.barList(document.getElementById("tools"), (D.tools7 || []).map(([name, v]) =>
+    ({ name, v, cls: hersTools.has(name) ? "hers" : "" })));
+  document.getElementById("tools-kpi").innerHTML = `<b>${D.tools7_total}</b> total`;
+  document.getElementById("reasons").innerHTML = (D.arb_reasons || []).slice(0, 3).map(r =>
+    `<blockquote class="quote">${Suite.esc(r.reason)}<span class="who">— ${r.disp.replace("_", " ")}${r.lane ? " · " + r.lane : ""} · ${r.d}</span></blockquote>`).join("") || '<p class="note">no judged reaches in the window</p>';
+  document.getElementById("moment-note").textContent =
+    `Beneath the arbiter: ${say7} urges to speak, ${hold7} chosen holds this week. Held ≠ silent — it resurfaces at the bench and in the night review.`;
+  const kindMap = { sent: ["say", "reached"], hands: ["say", "did"], note_to_self: ["keep", "kept"],
+    create_reminder: ["keep", "kept"], deliver_artifact: ["make", "made"], forge_started: ["forge", "forged"],
+    forge_installed: ["forge", "forged"], quest_filed: ["keep", "kept"], forge_auto_disable: ["bench", "benched"] };
+  document.getElementById("stagelog").innerHTML = D.deeds.slice(-14).reverse().map(x => {
+    const [cls, label] = kindMap[x.kind] || ["keep", x.kind];
+    return `<div class="logrow"><span class="when num">${x.at}</span><span class="kind ${cls}">${label}</span><span class="what">${Suite.esc(x.detail)}</span></div>`;
+  }).join("");
+  const B = D.books || {};
+  const so = B.stakes_open || {}, sr = B.stakes_resolved || {};
+  const openN = Suite.sum(Object.values(so)), resN = Suite.sum(Object.values(sr));
+  document.getElementById("stakes-tag").textContent = `${openN} open · ${resN} resolved`;
+  const kinds = [...new Set([...Object.keys(so), ...Object.keys(sr)])].sort();
+  document.getElementById("stakes").innerHTML = kinds.map(k =>
+    `<div class="bookrow"><span class="k">${k}</span><span class="v num">${so[k] || 0} open · ${sr[k] || 0} resolved</span></div>`).join("");
+  document.getElementById("fears").innerHTML = (B.fears || []).map(f =>
+    `<div class="bookrow"><span class="k">${Suite.esc(f.id)}</span><span class="v">${Suite.esc(f.state)}</span></div>`).join("") +
+    `<div class="bookrow"><span class="k">regrets</span><span class="v num">${B.regrets_open ?? 0} — empty at birth is correct</span></div>`;
+  const qa = (B.quests || []).filter(q => q.status === "alive");
+  document.getElementById("quests-tag").textContent = `${qa.length} alive · ${(B.quests || []).length - qa.length} done`;
+  document.getElementById("quests").innerHTML = (B.quests || []).slice().reverse().map(q =>
+    `<div class="bookrow"><span class="k">${q.status === "alive" ? "⚑" : "✓"} ${q.src === "him-spoken" ? "yours" : "hers"}</span><span class="v" style="text-align:right">${Suite.esc(q.text)}</span></div>`).join("");
+  document.getElementById("senses-note").textContent =
+    `What woke her moment loop in the last 48 h. 🏠 = the new house sense; her device book holds ${B.lan_devices ?? "?"} devices.`;
+  Suite.barList(document.getElementById("wakes"), (D.wakes || []).slice(0, 9).map(([name, v, house]) =>
+    ({ name, v, cls: house ? "house" : "", suffix: house ? " 🏠" : "" })));
+  document.getElementById("forge").innerHTML = (B.forge || []).map(f =>
+    `<div class="bookrow"><span class="k mono">${Suite.esc(f.name)}</span><span class="v">${f.enabled ? '<span style="color:var(--good)">✓ on the belt</span>' : '<span style="color:var(--crit)">✗ self-benched</span>'} · ${Suite.esc(f.tests)}</span></div>` +
+    `<p class="note" style="margin:2px 0 10px">ask: “${Suite.esc(f.ask)}…”</p>`).join("");
+});
+</script>
+</body></html>
