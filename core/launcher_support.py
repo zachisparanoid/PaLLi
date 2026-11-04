@@ -33,6 +33,7 @@ LAUNCHER_LOG_PATH = LAUNCHER_LOG_DIR / "launcher.log"
 SERVICE_LOG_PATHS = {
     "backend": LAUNCHER_LOG_DIR / "backend.log",
     "frontend": LAUNCHER_LOG_DIR / "frontend.log",
+    "cognitive": LAUNCHER_LOG_DIR / "cognitive.log",
 }
 
 
@@ -181,6 +182,12 @@ def _service_target(service_name: str) -> Dict[str, Any]:
             "health_url": f"{base_url}/api/health",
             "log_path": str(service_log_path("backend")),
         }
+    if normalized == "cognitive":
+        return {
+            "name": "cognitive", "host": "127.0.0.1", "port": 8765,
+            "url": "http://127.0.0.1:8765/", "health_url": "http://127.0.0.1:8765/",
+            "log_path": str(service_log_path("cognitive")),
+        }
     host, port = config.get_frontend_bind_host_port()
     probe_host = normalize_probe_host(host)
     probe_authority = f"[{probe_host}]" if ":" in probe_host else probe_host
@@ -282,6 +289,7 @@ def launcher_snapshot() -> Dict[str, Any]:
     state = load_launcher_state()
     backend = inspect_launcher_service("backend", state=state)
     frontend = inspect_launcher_service("frontend", state=state)
+    cognitive = inspect_launcher_service("cognitive", state=state)
     last_doctor = dict(state.get("last_doctor") or {})
     return {
         "state_path": str(LAUNCHER_STATE_PATH),
@@ -289,6 +297,7 @@ def launcher_snapshot() -> Dict[str, Any]:
         "services": {
             "backend": backend,
             "frontend": frontend,
+            "cognitive": cognitive,
         },
         "last_doctor": last_doctor or None,
     }

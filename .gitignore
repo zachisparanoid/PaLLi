@@ -410,3 +410,9 @@ data/palli.yaml
 !/data/palli.example.yaml
 .env.*
 !.env.template
+
+# Private cognitive traces and pseudonymization key
+/data/cognitive_traces/
+
+# Personal planning notes are not part of the public release.
+/plans/

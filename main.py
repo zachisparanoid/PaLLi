@@ -379,6 +379,14 @@ async def main() -> bool:
     """Main entry point. False means she never got off the ground."""
     setup_logging()
 
+    # Tracing is optional and must never prevent PaLLi from starting.
+    if os.environ.get('PALLI_COGNITIVE_TRACE') == '1':
+        try:
+            from core.cognitive_trace import install as install_cognitive_trace
+            install_cognitive_trace()
+        except Exception:
+            logger.exception('Cognitive tracing unavailable; continuing without it')
+
     launcher = PalliLauncher()
     try:
         return bool(await launcher.start())

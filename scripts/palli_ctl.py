@@ -801,7 +801,20 @@ class LauncherController:
 
     def _spawn(self, service_name: str, command: List[str], *, cwd: Path, env: Optional[Dict[str, str]] = None) -> int:
         log_file = service_log_path(service_name)
-        log_handle = open(log_file, "a", encoding="utf-8")
+        if service_name == "cognitive":
+            # The dashboard prints a bearer-token URL. Never append it to a
+            # world-readable log or retain links from earlier server sessions.
+            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | getattr(os, "O_NOFOLLOW", 0)
+            fd = os.open(log_file, flags, 0o600)
+            try:
+                if hasattr(os, "fchmod"):
+                    os.fchmod(fd, 0o600)
+                log_handle = os.fdopen(fd, "w", encoding="utf-8")
+            except BaseException:
+                os.close(fd)
+                raise
+        else:
+            log_handle = open(log_file, "a", encoding="utf-8")
         kwargs: Dict[str, Any] = {
             "cwd": str(cwd),
             "env": env or os.environ.copy(),
@@ -818,8 +831,10 @@ class LauncherController:
             )
         else:
             kwargs["start_new_session"] = True
-        process = subprocess.Popen(command, **kwargs)
-        log_handle.close()
+        try:
+            process = subprocess.Popen(command, **kwargs)
+        finally:
+            log_handle.close()
         append_launcher_log(f"started {service_name} pid={process.pid} command={' '.join(command)}")
         return int(process.pid)
 
@@ -833,7 +848,7 @@ class LauncherController:
             "command": list(command),
             "log_path": str(service_log_path(service_name)),
             "metadata": {
-                "cwd": str(self.root_dir if service_name == "backend" else self.website_dir),
+                "cwd": str(self.website_dir if service_name == "frontend" else self.root_dir),
             },
         }
         state["services"] = services
@@ -1473,6 +1488,48 @@ class LauncherController:
                 "tokens; stop her where she was started first."
             )
 
+    def _start_cognitive_dashboard(self) -> None:
+        """Start the optional observatory without taking over another process."""
+        pid = None
+        try:
+            current = inspect_launcher_service("cognitive")
+            if current["ownership"] == "external":
+                print("Cognitive dashboard: port 8765 is already in use; leaving it alone.")
+                return
+            if current["ownership"] == "launcher":
+                record = dict((self._load_state().get("services") or {}).get("cognitive") or {})
+                if self._recorded_process_is_ours(int(current.get("pid") or 0), record) is False:
+                    self._remove_service_state("cognitive")
+                    print("Cognitive dashboard: stale process record; leaving the current port owner alone.")
+                    return
+                if current["status"] == "running":
+                    print(f"Cognitive dashboard already running. Access links: `{launcher_command_hint('logs cognitive')}`")
+                    return
+                print(f"Cognitive dashboard is not ready. Check `{launcher_command_hint('logs cognitive')}`.")
+                return
+            command = self._python_command() + ["cognitive_dashboard/server.py", "--port", "8765"]
+            pid = self._spawn("cognitive", command, cwd=self.root_dir)
+            self._update_service_state("cognitive", pid=pid, command=command)
+            dashboard = self._wait_for_running("cognitive", timeout_seconds=5.0)
+            if dashboard.get("status") != "running":
+                self._terminate_pid(pid, group=True)
+                self._remove_service_state("cognitive")
+                print(f"Cognitive dashboard did not start. Check `{launcher_command_hint('logs cognitive')}`.")
+                return
+            print("Cognitive dashboard access links (private):")
+            try:
+                for line in service_log_path("cognitive").read_text(encoding="utf-8").splitlines():
+                    if line.startswith(("Local dashboard: http://", "Network dashboard: http://")):
+                        print(f"  {line}")
+            except OSError:
+                print(f"  Run `{launcher_command_hint('logs cognitive')}` to see access links.")
+        except (OSError, RuntimeError) as exc:
+            if pid is not None:
+                self._terminate_pid(pid, group=True)
+                with contextlib.suppress(OSError, RuntimeError):
+                    self._remove_service_state("cognitive")
+            print(f"Cognitive dashboard could not start: {exc}", file=sys.stderr)
+
     def start(self) -> int:
         # Before the doctor: whatever else it finds, a running her is the answer.
         self._refuse_while_she_runs(inspect_launcher_service("backend"))
@@ -1533,6 +1590,7 @@ class LauncherController:
         print(f"Backend: {backend['url']}")
         print(f"Frontend: {frontend['url']}")
         self._print_network_access()
+        self._start_cognitive_dashboard()
         append_launcher_log("start completed")
         return 0
 
@@ -1635,7 +1693,7 @@ class LauncherController:
         append_launcher_log("stop requested")
         state = self._load_state()
         services = dict(state.get("services") or {})
-        for service_name in ("frontend", "backend"):
+        for service_name in ("cognitive", "frontend", "backend"):
             record = dict(services.get(service_name) or {})
             pid = int(record.get("pid") or 0)
             if pid <= 0:
@@ -1698,7 +1756,7 @@ class LauncherController:
             print(json.dumps(payload, indent=2, ensure_ascii=True))
         else:
             print(f"Overall: {payload['overall_status']}")
-            for service_name in ("backend", "frontend"):
+            for service_name in ("backend", "frontend", "cognitive"):
                 item = dict(services.get(service_name) or {})
                 ownership = str(item.get("ownership", "none"))
                 if ownership == "self":
@@ -3046,7 +3104,7 @@ class LauncherController:
 
     def logs(self, *, target: str, follow: bool) -> int:
         normalized = str(target or "launcher").strip().lower()
-        if normalized not in {"backend", "frontend", "launcher"}:
+        if normalized not in {"backend", "frontend", "cognitive", "launcher"}:
             raise RuntimeError(f"Unsupported log target: {normalized}")
         path = launcher_log_path() if normalized == "launcher" else service_log_path(normalized)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -3802,7 +3860,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     logs = subparsers.add_parser("logs", help="Show launcher logs")
-    logs.add_argument("target", nargs="?", default="launcher", choices=["backend", "frontend", "launcher"])
+    logs.add_argument("target", nargs="?", default="launcher", choices=["backend", "frontend", "cognitive", "launcher"])
     logs.add_argument("--follow", action="store_true")
 
     settings_parser = subparsers.add_parser("settings", help="View and modify PaLLi settings")

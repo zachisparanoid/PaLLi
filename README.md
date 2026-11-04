@@ -509,3 +509,9 @@ ideas are welcome.
 
 The memory, the journals and the identity documents are not code, and they are not in this
 repository. They are yours, and they will be PaLLi's own.
+
+## Cognitive observatory
+
+PaLLi can optionally record metadata about cognitive activity and show it in a separate dashboard. Set `PALLI_COGNITIVE_TRACE=1` in `.env.local` and restart PaLLi to collect new traces. `scripts/palli_ctl.py start` starts the dashboard on port 8765 and prints private access links; `scripts/palli_ctl.py logs cognitive` shows them again. You can also run `venv/bin/python cognitive_dashboard/server.py --port 8765` separately.
+
+The dashboard listens on LAN and Tailnet interfaces by default, and its access link grants access to newly stored conversation text. Ordinary LAN HTTP is unencrypted; use a trusted network or Tailnet, and keep the link private. Start it with `--bind 127.0.0.1` for local-only access. The trace records are metadata-only, opt-in, and subject to retention limits. A recorded prompt inclusion or execution path does not establish causal influence. See [the observatory guide](cognitive_dashboard/README.md) for controls, evidence categories, privacy, and limitations.
